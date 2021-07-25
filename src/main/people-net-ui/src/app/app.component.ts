@@ -11,7 +11,7 @@ import { MessageService } from './message.service';
 })
 export class AppComponent implements OnInit {
     public messages: Message[];
-    public message: Message;
+    public message: Message = null;
 
     constructor(private messageService: MessageService) { }
 
