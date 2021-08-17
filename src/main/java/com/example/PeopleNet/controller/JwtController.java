@@ -4,14 +4,12 @@ import com.example.PeopleNet.domain.User;
 import com.example.PeopleNet.payload.response.JwtResponse;
 import com.example.PeopleNet.service.UserService;
 import com.example.PeopleNet.util.JwtUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @RestController
@@ -21,22 +19,17 @@ public class JwtController {
 
     @GetMapping("/refresh-token")
     public JwtResponse refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
+            HttpServletRequest request
     ) throws IOException {
-        try {
-            String refreshToken = JwtUtils.extractJwsFromHeader(request);
-            String subject = JwtUtils.verifyTokenAndReturnClaims(refreshToken).getSubject();
+        // get the user that requested the refreshing token.
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = (User) this.userService.loadUserByUsername(username);
 
-            User user = (User) this.userService.loadUserByUsername(subject);
-            // generate a new access token.
-            String newAccessToken = JwtUtils.generateAccessToken(user);
+        // generate a new access token for the user.
+        String newAccessToken = JwtUtils.generateAccessToken(user);
+        // extract the refresh token.
+        String refreshToken = JwtUtils.extractJwsFromHeader(request);
 
-            new ObjectMapper().writeValue(response.getOutputStream(), JwtUtils.getJwtResponse(user, newAccessToken, refreshToken));
-        } catch (JwtException exception) {
-            JwtUtils.processJwtException(response, exception);
-        }
-
-        return null;
+        return JwtUtils.getJwtResponse(user, newAccessToken, refreshToken);
     }
 }
