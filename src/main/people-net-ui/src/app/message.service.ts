@@ -13,22 +13,22 @@ export class MessageService {
     constructor(private http: HttpClient) { }
 
     public getMessages(): Observable<Message[]> {
-        return this.http.get<Message[]>(`${this.apiServerUrl}/message`);
+        return this.http.get<Message[]>(`${this.apiServerUrl}/api/message`);
     }
 
     public getMessage(id: string): Observable<Message> {
-        return this.http.get<Message>(`${this.apiServerUrl}/message/${id}`);
+        return this.http.get<Message>(`${this.apiServerUrl}/api/message/${id}`);
     }
 
     public addMessage(message: Message): Observable<Message> {
-        return this.http.post<Message>(`${this.apiServerUrl}/message`, message);
+        return this.http.post<Message>(`${this.apiServerUrl}/api/message`, message);
     }
 
     public updateMessage(id: string, message: Message): Observable<Message> {
-        return this.http.put<Message>(`${this.apiServerUrl}/message/${id}`, message);
+        return this.http.put<Message>(`${this.apiServerUrl}/api/message/${id}`, message);
     }
 
     public deleteMessage(id: string): Observable<void> {
-        return this.http.delete<void>(`${this.apiServerUrl}/message/${id}`);
+        return this.http.delete<void>(`${this.apiServerUrl}/api/message/${id}`);
     }
 }
