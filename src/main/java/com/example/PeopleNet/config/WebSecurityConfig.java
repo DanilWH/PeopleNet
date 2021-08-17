@@ -29,15 +29,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
+        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
+
         http.csrf().disable();
 
         // “stateless” – is a guarantee that the application will not create any session at all.
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/login").permitAll();
+        http.authorizeRequests().antMatchers("/api/login/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
 
+        http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(new CustomAuthorizationFilter(userServiceImpl), UsernamePasswordAuthenticationFilter.class);
-        http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
     }
 
     @Bean
