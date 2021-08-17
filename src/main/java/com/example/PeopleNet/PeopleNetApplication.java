@@ -9,5 +9,4 @@ public class PeopleNetApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PeopleNetApplication.class, args);
 	}
-
 }

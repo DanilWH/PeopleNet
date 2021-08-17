@@ -151,4 +151,15 @@ A simple social media application built for the purpose of introducing to RESTfu
    ```
    
    __Refresh token__ is used when the actual access token is expired so that you don't ask the user to send their
-   credentials again.
+   credentials again.  
+
+   ### "Stateless" definition
+   By default, Spring Security will create a session when it needs one – this is “ifRequired“.
+   For a more stateless application, the “never” option will ensure that Spring Security itself will not create any
+   session; however, if the application creates one, then Spring Security will make use of it.
+   Finally, the strictest session creation option – “stateless” – is a guarantee that the application will not create
+   any session at all.
+   These more strict control mechanisms have the direct implication that cookies are not used and so each and every
+   request needs to be re-authenticated. This stateless architecture plays well with REST APIs and their Statelessness
+   constraint. They also work well with authentication mechanisms such as Basic and Digest Authentication.
+   

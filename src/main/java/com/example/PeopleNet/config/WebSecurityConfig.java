@@ -1,51 +1,48 @@
 package com.example.PeopleNet.config;
 
-import com.example.PeopleNet.domain.User;
-import com.example.PeopleNet.repo.UserDetailsRepo;
-import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
+import com.example.PeopleNet.config.filter.CustomAuthenticationFilter;
+import com.example.PeopleNet.config.filter.CustomAuthorizationFilter;
+import com.example.PeopleNet.service.UserServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-
-import java.time.LocalDateTime;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableOAuth2Sso
+@RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private final UserServiceImpl userServiceImpl;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userServiceImpl).passwordEncoder(bCryptPasswordEncoder);
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                    .mvcMatchers("/").permitAll()
-                    .anyRequest().authenticated()
-                .and()
-                    .csrf().disable();
+        http.csrf().disable();
+
+        // “stateless” – is a guarantee that the application will not create any session at all.
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.authorizeRequests().antMatchers("/login").permitAll();
+        http.authorizeRequests().anyRequest().authenticated();
+
+        http.addFilterBefore(new CustomAuthorizationFilter(userServiceImpl), UsernamePasswordAuthenticationFilter.class);
+        http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
     }
 
     @Bean
-    public PrincipalExtractor principalExtractor(UserDetailsRepo userDetailsRepo) {
-        return map -> {
-            String id = (String) map.get("sub");
-
-            User user = userDetailsRepo.findById(id).orElseGet(() -> {
-                User newUser = new User();
-
-                newUser.setId(id);
-                newUser.setName((String) map.get("name"));
-                newUser.setEmail((String) map.get("email"));
-                newUser.setGender((String) map.get("gender"));
-                newUser.setLocale((String) map.get("locale"));
-                newUser.setUserpic((String) map.get("picture"));
-
-                return newUser;
-            });
-
-            user.setLastVisit(LocalDateTime.now());
-
-            return userDetailsRepo.save(user);
-        };
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 }
