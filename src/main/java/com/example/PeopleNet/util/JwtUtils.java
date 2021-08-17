@@ -23,29 +23,17 @@ public final class JwtUtils {
     private static final long ACCESS_TOKEN_EXPIRATION_DURATION = 1000 * 60 * 60 * 24 * 7; // 7 days.
     private static final long REFRESH_TOKEN_EXPIRATION_DURATION = 1000L * 60 * 60 * 24 * 30; // 30 days.
 
-    public static Key getJwtKey() {
-        return JWT_KEY;
+    public static String generateAccessToken(User user) {
+        return generateToken(user, ACCESS_TOKEN_EXPIRATION_DURATION);
     }
 
-    public static String generateAccessToken(User userDetails) {
-        return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_DURATION))
-                .signWith(JWT_KEY)
-                .compact();
-    }
-
-    public static String generateRefreshToken(User userDetails) {
-        return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_DURATION))
-                .signWith(JWT_KEY)
-                .compact();
+    public static String generateRefreshToken(User user) {
+        return generateToken(user, REFRESH_TOKEN_EXPIRATION_DURATION);
     }
 
     public static Claims verifyTokenAndReturnClaims(String jws) {
         return Jwts.parserBuilder()
-                .setSigningKey(JwtUtils.getJwtKey())
+                .setSigningKey(JWT_KEY)
                 .build()
                 .parseClaimsJws(jws)
                 .getBody();
@@ -83,5 +71,13 @@ public final class JwtUtils {
         new ObjectMapper().writeValue(response.getOutputStream(), new FailedJwsResponse(exception.getMessage()));
 
         throw new RuntimeException(exception.getMessage());
+    }
+
+    private static String generateToken(User user, long expirationTimeDuration) {
+        return Jwts.builder()
+                .setSubject(user.getUsername())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTimeDuration))
+                .signWith(JWT_KEY)
+                .compact();
     }
 }
