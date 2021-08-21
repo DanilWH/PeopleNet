@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +31,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User register(User user) {
+        // first, we check if the user with such a username already exists.
+        User savedUser = this.userRepo.findByUsername(user.getUsername());
+
+        if (savedUser != null) {
+            return null;
+        }
+
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        user.setRoles(Collections.singleton(RoleType.USER));
         return this.userRepo.save(user);
     }
 

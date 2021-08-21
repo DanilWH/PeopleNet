@@ -38,14 +38,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         corsConfiguration.addExposedHeader("Authorization");
 
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
-        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
+        customAuthenticationFilter.setFilterProcessesUrl("/api/auth/login");
 
         http.csrf().disable();
         http.cors().configurationSource(request -> corsConfiguration);
 
         // “stateless” – is a guarantee that the application will not create any session at all.
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/api/login/**").permitAll();
+        http.authorizeRequests().antMatchers("/api/auth/login", "/api/auth/register").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
 
         http.addFilter(customAuthenticationFilter);

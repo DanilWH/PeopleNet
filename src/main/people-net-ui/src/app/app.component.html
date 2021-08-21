@@ -1,26 +1,16 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>PeopleNet</title>
-    </head>
-    <body>
-        <div style="position: relative; width: 300px;">
-            <h1>People Net</h1>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="main-breadcrumb">
+  <ol *ngIf="isLoggedIn" class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/home" routerLink="home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/profile" routerLink="profile">{{ userInfo.username }}</a></li>
+    <li class="breadcrumb-item active" (click)="logout()">Logout</li>
+  </ol>
+  <ol *ngIf="!isLoggedIn" class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/login" routerLink="login">Login</a></li>
+    <li class="breadcrumb-item"><a href="/register" routerLink="register">Register</a></li>
+  </ol>
+  <hr />
+</nav>
+<!-- /Breadcrumb -->
 
-            <form #saveMessageForm="ngForm" (ngSubmit)="onSaveMessage(saveMessageForm)">
-                <input type="text" ngModel="{{ message?.text }}" name="text" />
-                <input type="submit" value="Save" />
-            </form>
-
-            <div *ngFor="let message of messages">
-                <div>
-                    <i>({{ message.id }})</i>{{ message.text }}
-                    <span style="position: absolute; right: 0;">
-                        <input type="button" value="Edit" (click)="onEditMessage(message)" />
-                        <input type="button" value="X" (click)="onDeleteMessage(message)" />
-                    </span>
-                </div>
-            </div>
-        </div>
-    </body>
-</html>
+<router-outlet></router-outlet>

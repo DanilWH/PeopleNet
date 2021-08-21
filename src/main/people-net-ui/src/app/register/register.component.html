@@ -1,0 +1,78 @@
+<form name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+  <!-- Username. -->
+  <div>
+    <label for="username">Username: </label>
+    <input id="username" type="text" name="username" [(ngModel)]="form.username" #username="ngModel"
+           required="required" minlength="3" maxlength="20" (blur)="onBlur()" />
+
+    <div *ngIf="isUsernameBusy">Username is busy.</div>
+    <div *ngIf="username.errors">
+      <div *ngIf="username.errors.required">Username must be filled out.</div>
+      <div *ngIf="username.errors.minlength">Username must not contain less than 3 characters.</div>
+      <div *ngIf="username.errors.maxlength">Username must not contain more than 20 characters.</div>
+    </div>
+  </div>
+
+  <!-- Password. -->
+  <div>
+    <label for="password">Password: </label>
+    <input id="password" type="password" name="password" [(ngModel)]="form.password" (input)="onPasswordInput()"
+           #password="ngModel" required="required" minlength="5" maxlength="20" />
+
+    <div *ngIf="password.errors">
+      <div *ngIf="password.errors.required">Password must be filled out.</div>
+      <div *ngIf="password.errors.minlength">Password must contains no less than 5 characters.</div>
+      <div *ngIf="password.errors.maxlength">Password must contains no more than 20 characters</div>
+    </div>
+  </div>
+  <div>
+    <label for="repeatPassword">Repeat password: </label>
+    <input id="repeatPassword" type="password" name="repeatPassword" [(ngModel)]="repeatPassword" (input)="onPasswordInput()" />
+
+    <div *ngIf="!passwordMatch">Passwords don't match!</div>
+  </div>
+
+  <!-- Avatar. -->
+  <div>
+    <label for="avatar">Avatar: </label>
+    <input id="avatar" type="url" name="avatar" [(ngModel)]="form.avatar" />
+  </div>
+
+  <!-- Email. -->
+  <div>
+    <label for="email">Email: </label>
+    <input id="email" type="email" name="email" [(ngModel)]="form.email" #email="ngModel" required="required" />
+
+    <div *ngIf="email.errors">
+      <div *ngIf="email.errors.required">Email is required.</div>
+    </div>
+  </div>
+
+  <!-- Gender. -->
+  <div>
+    <div>
+      <label for="male">Male</label>
+      <input id="male" type="radio" value="Male" name="gender" [(ngModel)]="form.gender" #gender="ngModel" required="required" />
+    </div>
+    <div>
+      <label for="female">Female</label>
+      <input id="female" type="radio" value="Female" name="gender" [(ngModel)]="form.gender" #gender="ngModel" required="required" />
+    </div>
+    <div>
+      <label for="gay">Gay</label>
+      <input id="gay" type="radio" value="Gay" name="gender" [(ngModel)]="form.gender" #gender="ngModel" required="required" />
+    </div>
+    <div>
+      <label for="lesbian">Lesbian</label>
+      <input id="lesbian" type="radio" value="Lesbian" name="gender" [(ngModel)]="form.gender" #gender="ngModel" required="required" />
+    </div>
+
+    <div *ngIf="gender.errors">
+      <div *ngIf="gender.errors.required">Every human being has a gender and you are not special!</div>
+    </div>
+  </div>
+
+  <button type="submit">Register</button>
+</form>
+
+<div *ngIf="registrationFailStatus">Registration failed.</div>

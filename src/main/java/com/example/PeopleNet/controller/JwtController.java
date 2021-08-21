@@ -15,7 +15,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 public class JwtController {
     private final UserService userService;
 
