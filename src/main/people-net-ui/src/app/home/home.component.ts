@@ -4,8 +4,6 @@ import { MessageService } from "../_services/message.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { NgForm } from "@angular/forms";
 import { WebSocketService } from "../_services/web-socket.service";
-import * as SockJS from "sockjs-client";
-import { Stomp } from "@stomp/stompjs";
 import { TokenStorageService } from "../_services/token-storage.service";
 
 const headers = {
@@ -18,14 +16,12 @@ const headers = {
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  public webSocketEndpoint = 'http://localhost:8080/ws';
-  public stompClient: any = null;
-
   public messages: Message[];
   public editingMessage: Message = null;
 
   constructor(
     private messageService: MessageService,
+    private webSocketService: WebSocketService
   ) { }
 
   ngOnInit(): void {
@@ -38,11 +34,20 @@ export class HomeComponent implements OnInit {
       }
     );
 
-    this.connect();
+    this.webSocketService.addHandler((data: any) => {
+      let oldMessageIndex = this.messages.findIndex(message => message.id === data.id);
+
+      if (oldMessageIndex !== -1) {
+        this.messages.splice(oldMessageIndex, 1, data);
+      }
+      else {
+        this.messages.push(data);
+      }
+    });
   }
 
   public onSaveMessage(saveMessageForm: NgForm): void {
-    this.sendMessage({ id: this.editingMessage?.id, text: saveMessageForm.value.text });
+    this.webSocketService.sendMessage({ id: this.editingMessage?.id, text: saveMessageForm.value.text });
     saveMessageForm.reset();
   }
 
@@ -56,36 +61,5 @@ export class HomeComponent implements OnInit {
         this.messages.splice(this.messages.indexOf(message), 1);
       }
     )
-  }
-
-  public connect(): void {
-    let socket = new SockJS(this.webSocketEndpoint);
-    this.stompClient = Stomp.over(socket);
-
-    const _this = this;
-    this.stompClient.connect({}, (frame: any) => {
-      _this.stompClient.subscribe('/topic/activity', (data: any) => {
-        let parsedData: Message = JSON.parse(data.body);
-        let oldMessageIndex = this.messages.findIndex(message => message.id === parsedData.id);
-
-        if (oldMessageIndex !== -1) {
-          this.messages.splice(oldMessageIndex, 1, parsedData);
-        }
-        else {
-          this.messages.push(parsedData);
-        }
-      });
-    });
-  }
-
-  public disconnect() {
-    if (this.stompClient !== null) {
-      this.stompClient.ws.close();
-    }
-    console.log("Disconnected");
-  }
-
-  public sendMessage(message: Message) {
-      this.stompClient.send('/app/changeMessage', headers, JSON.stringify(message));
   }
 }

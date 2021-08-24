@@ -5,6 +5,7 @@ import { Message } from './_domains/message';
 import { MessageService } from './_services/message.service';
 import { TokenStorageService } from "./_services/token-storage.service";
 import { User } from "./_domains/user";
+import { WebSocketService } from "./_services/web-socket.service";
 
 @Component({
     selector: 'app-root',
@@ -15,7 +16,10 @@ export class AppComponent implements OnInit {
   public userInfo: User = new User();
   public isLoggedIn: boolean = false;
 
-  constructor(private tokenStorageService: TokenStorageService) { }
+  constructor(
+    private tokenStorageService: TokenStorageService,
+    private webSocketService: WebSocketService
+  ) { }
 
   ngOnInit(): void {
     this.isLoggedIn = !!this.tokenStorageService.getAccessToken();
@@ -23,6 +27,8 @@ export class AppComponent implements OnInit {
     if (this.isLoggedIn) {
       this.userInfo = this.tokenStorageService.getUser();
     }
+
+    this.webSocketService.connect();
   }
 
   logout(): void {
