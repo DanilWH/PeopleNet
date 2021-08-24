@@ -163,3 +163,24 @@ A simple social media application built for the purpose of introducing to RESTfu
    request needs to be re-authenticated. This stateless architecture plays well with REST APIs and their Statelessness
    constraint. They also work well with authentication mechanisms such as Basic and Digest Authentication.
    
+## 8'th commit
+   
+   ### WebSockets
+   WebSockets provide full-duplex bi-directional communication. That is, enable interaction between the client and the
+   server.
+   ```text
+    Client                                  Server
+      |                                        |
+      | -------------------------------------> |
+      |        Handshake (HTTP Upgrade)        |
+      | <------ 101 Switching protocols ------ |
+      |                                        |
+      |                                        |
+      |        Bi-directional messages         |
+      | <-- open and persistent connection --> |
+      |                                        |
+      |                                        |
+      |        One side closes chanel          |
+      | <-------- connection closed ---------> |
+      |                                        |
+   ```

@@ -3,6 +3,14 @@ import { Message } from "../_domains/message";
 import { MessageService } from "../_services/message.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { NgForm } from "@angular/forms";
+import { WebSocketService } from "../_services/web-socket.service";
+import * as SockJS from "sockjs-client";
+import { Stomp } from "@stomp/stompjs";
+import { TokenStorageService } from "../_services/token-storage.service";
+
+const headers = {
+  'Authorization': 'Bearer ' + new TokenStorageService().getAccessToken()
+}
 
 @Component({
   selector: 'app-home',
@@ -10,10 +18,15 @@ import { NgForm } from "@angular/forms";
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  public messages: Message[];
-  public message: Message = null;
+  public webSocketEndpoint = 'http://localhost:8080/ws';
+  public stompClient: any = null;
 
-  constructor(private messageService: MessageService) { }
+  public messages: Message[];
+  public editingMessage: Message = null;
+
+  constructor(
+    private messageService: MessageService,
+  ) { }
 
   ngOnInit(): void {
     this.messageService.getMessages().subscribe(
@@ -23,38 +36,18 @@ export class HomeComponent implements OnInit {
       (error: HttpErrorResponse) => {
         alert(error.message);
       }
-    )
+    );
+
+    this.connect();
   }
 
   public onSaveMessage(saveMessageForm: NgForm): void {
-    if (this.message) {
-      this.messageService.updateMessage(this.message.id, saveMessageForm.value).subscribe(
-        (data: Message) => {
-          let oldMessageIndex = this.messages.indexOf(this.message);
-          this.messages.splice(oldMessageIndex, 1, data);
-
-          // reset the message to null.
-          this.message = null;
-        },
-        (error: HttpErrorResponse) => {
-          console.log(error.message);
-        }
-      );
-    } else {
-      this.messageService.addMessage(saveMessageForm.value).subscribe(
-        (data: Message) => {
-          this.messages.push(data);
-          saveMessageForm.reset();
-        },
-        (error: HttpErrorResponse) => {
-          console.log(error.message);
-        }
-      );
-    }
+    this.sendMessage({ id: this.editingMessage?.id, text: saveMessageForm.value.text });
+    saveMessageForm.reset();
   }
 
   public onEditMessage(message: Message): void {
-    this.message = message;
+    this.editingMessage = message;
   }
 
   public onDeleteMessage(message: Message): void {
@@ -63,5 +56,36 @@ export class HomeComponent implements OnInit {
         this.messages.splice(this.messages.indexOf(message), 1);
       }
     )
+  }
+
+  public connect(): void {
+    let socket = new SockJS(this.webSocketEndpoint);
+    this.stompClient = Stomp.over(socket);
+
+    const _this = this;
+    this.stompClient.connect({}, (frame: any) => {
+      _this.stompClient.subscribe('/topic/activity', (data: any) => {
+        let parsedData: Message = JSON.parse(data.body);
+        let oldMessageIndex = this.messages.findIndex(message => message.id === parsedData.id);
+
+        if (oldMessageIndex !== -1) {
+          this.messages.splice(oldMessageIndex, 1, parsedData);
+        }
+        else {
+          this.messages.push(parsedData);
+        }
+      });
+    });
+  }
+
+  public disconnect() {
+    if (this.stompClient !== null) {
+      this.stompClient.ws.close();
+    }
+    console.log("Disconnected");
+  }
+
+  public sendMessage(message: Message) {
+      this.stompClient.send('/app/changeMessage', headers, JSON.stringify(message));
   }
 }

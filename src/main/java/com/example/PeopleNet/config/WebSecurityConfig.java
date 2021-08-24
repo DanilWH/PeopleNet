@@ -45,7 +45,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         // “stateless” – is a guarantee that the application will not create any session at all.
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/api/auth/login", "/api/auth/register").permitAll();
+        http.authorizeRequests().antMatchers(
+                "/api/auth/login",
+                "/api/auth/register",
+                "/ws/**"
+        ).permitAll();
         http.authorizeRequests().anyRequest().authenticated();
 
         http.addFilter(customAuthenticationFilter);

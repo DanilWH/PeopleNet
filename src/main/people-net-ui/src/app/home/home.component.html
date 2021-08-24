@@ -8,17 +8,17 @@
   <h1>People Net</h1>
 
   <form #saveMessageForm="ngForm" (ngSubmit)="onSaveMessage(saveMessageForm)">
-    <input type="text" ngModel="{{ message?.text }}" name="text" />
+    <input type="text" ngModel="{{ editingMessage?.text }}" name="text" />
     <input type="submit" value="Save" />
   </form>
 
   <div *ngFor="let message of messages">
     <div>
-      <i>({{ message.id }})</i>{{ message.text }}
+      <i>({{ message.id }})</i> {{ message.text }}
       <span style="position: absolute; right: 0;">
-                        <input type="button" value="Edit" (click)="onEditMessage(message)" />
-                        <input type="button" value="X" (click)="onDeleteMessage(message)" />
-                    </span>
+          <input type="button" value="Edit" (click)="onEditMessage(message)" />
+          <input type="button" value="X" (click)="onDeleteMessage(message)" />
+      </span>
     </div>
   </div>
 </div>
