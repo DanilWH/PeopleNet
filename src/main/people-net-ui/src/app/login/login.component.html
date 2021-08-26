@@ -2,32 +2,40 @@
 
 <form *ngIf="!isLoggedIn" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
   <!-- Username. -->
-  <div>
-    <label for="username">Username: </label>
-    <input id="username" type="text" name="username" [(ngModel)]="form.username" #username="ngModel"
-           minlength="3" maxlength="20" required="required" />
+  <div class="form-group row">
+    <label for="username" class="col-sm-1 col-form-label">Username</label>
+    <div class="col-sm-3">
+      <input id="username" class="form-control" type="text" name="username"  minlength="3" maxlength="20" required="required"
+             [(ngModel)]="form.username" #username="ngModel"
+             [ngClass]="{ 'is-invalid': username.errors && f.submitted }" />
 
-    <div *ngIf="username.errors && f.submitted">
-      <div *ngIf="username.errors.required">Username must not be empty.</div>
-      <div *ngIf="username.errors.minlength">Username must not be shorter than 3 letters.</div>
-      <div *ngIf="username.errors.maxlength">Username must not be longer than 3 letters.</div>
+      <div *ngIf="username.errors && f.submitted" class="invalid-feedback">
+        <div *ngIf="username.errors.required">Username must not be empty.</div>
+        <div *ngIf="username.errors.minlength">Username must not be shorter than 3 letters.</div>
+        <div *ngIf="username.errors.maxlength">Username must not be longer than 3 letters.</div>
+      </div>
     </div>
+
   </div>
 
   <!-- Password. -->
-  <div>
-    <label for="username">Password: </label>
-    <input id="password" type="password" name="password" [(ngModel)]="form.password" #password="ngModel"
-           minlength="5" max="20" required="required" />
+  <div class="form-group row">
+    <label for="username" class="col-sm-1 col-form-label">Password</label>
+    <div class="col-sm-3">
+      <input id="password" class="form-control" type="password" name="password" minlength="5" max="20" required="required"
+             [(ngModel)]="form.password" #password="ngModel"
+             [ngClass]="{ 'is-invalid': password.errors && f.submitted }" />
 
-    <div *ngIf="password.errors && f.submitted">
-      <div *ngIf="password.errors.required">Password must not be empty.</div>
-      <div *ngIf="password.errors.minlength">Password must not be shorter than 5 characters.</div>
-      <div *ngIf="password.errors.maxlength">Password must not be longer than 20 characters.</div>
+      <div *ngIf="password.errors && f.submitted" class="invalid-feedback">
+        <div *ngIf="password.errors.required">Password must not be empty.</div>
+        <div *ngIf="password.errors.minlength">Password must not be shorter than 5 characters.</div>
+        <div *ngIf="password.errors.maxlength">Password must not be longer than 20 characters.</div>
+      </div>
     </div>
+
   </div>
 
-  <button type="submit">Login</button>
+  <button class="btn btn-dark" type="submit">Login</button>
 </form>
 
 <div *ngIf="isLoggedIn">You are successfully logged in!</div>

@@ -13,7 +13,8 @@ const routes: Routes = [
   // home route protected by auth guard.
   {path: 'home', component: HomeComponent, canActivate: [AuthGuard]},
   // profile route protected by auth guard.
-  {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard]}
+  {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard]},
+  {path: '**', redirectTo: 'home'},
 ]
 
 @NgModule({
