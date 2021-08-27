@@ -1,8 +1,10 @@
-<form #saveMessageForm="ngForm" (ngSubmit)="onSaveMessage(saveMessageForm)" class="form-inline my-3">
-  <div class="form-group mx-sm-3 mb-2">
+<form #saveMessageForm="ngForm" (ngSubmit)="onSaveMessage(saveMessageForm)" class="row g-3">
+  <div class="col-auto">
     <input class="form-control" type="text" ngModel="{{ editingMessage?.text }}" name="text" placeholder="Write message" />
   </div>
-  <input class="btn btn-primary mb-2" type="submit" value="Save" />
+  <div class="col-auto">
+    <input class="btn btn-dark mb-3" type="submit" value="Save" />
+  </div>
 </form>
 
 
