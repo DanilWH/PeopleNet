@@ -35,19 +35,73 @@ export class HomeComponent implements OnInit {
     );
 
     this.webSocketService.addHandler((data: any) => {
-      let oldMessageIndex = this.messages.findIndex(message => message.id === data.id);
+      if (data.objectType === 'MESSAGE') {
+        const index = this.messages.findIndex(item => item.id === data.body.id);
+        console.log("addHandler: " + index);
 
-      if (oldMessageIndex !== -1) {
-        this.messages.splice(oldMessageIndex, 1, data);
+        switch (data.eventType) {
+          case 'CREATE':
+          case 'UPDATE':
+            if (index > -1) {
+              // the object is present.
+              this.messages.splice(index, 1, data.body);
+              console.log("addHandler splice");
+            }
+            else {
+              this.messages.push(data.body);
+              console.log("addHandler push");
+            }
+            break;
+          case 'REMOVE':
+            this.removeMessageFromList(index);
+            break;
+          default:
+            console.log(`Looks like the event type is unknown "${data.eventType}".`);
+        }
       }
       else {
-        this.messages.push(data);
+        console.log(`Looks like the object type is unknown "${data.objectType}" .`);
       }
     });
   }
 
   public onSaveMessage(saveMessageForm: NgForm): void {
-    this.webSocketService.sendMessage({ id: this.editingMessage?.id, text: saveMessageForm.value.text });
+    if (this.editingMessage) {
+      this.messageService.updateMessage(saveMessageForm.value).subscribe(
+        (data: Message) => {
+          const index = this.messages.findIndex(item => item.id === data.id);
+          this.messages.splice(index, 1, data);
+
+          // reset the message to null.
+          this.editingMessage = null;
+        },
+        (error: HttpErrorResponse) => {
+          console.log(error.message);
+        }
+      );
+    }
+    else {
+      this.messageService.addMessage(saveMessageForm.value).subscribe(
+        (data: Message) => {
+          const index = this.messages.findIndex(item => item.id === data.id);
+          console.log("onSaveMessage: " + index);
+
+          if (index > -1) {
+            // the message is already present.
+            this.messages.splice(index, 1, data);
+            console.log("onSaveMessage splice");
+          }
+          else {
+            this.messages.push(data);
+            console.log("onSaveMessage push");
+          }
+        },
+        (error: HttpErrorResponse) => {
+          console.log(error.message);
+        }
+      );
+    }
+
     saveMessageForm.reset();
   }
 
@@ -58,8 +112,15 @@ export class HomeComponent implements OnInit {
   public onDeleteMessage(message: Message): void {
     this.messageService.deleteMessage(message.id).subscribe(
       () => {
-        this.messages.splice(this.messages.indexOf(message), 1);
+        this.removeMessageFromList(this.messages.findIndex(item => item.id === message.id));
       }
     )
+  }
+
+  private removeMessageFromList(index: number): void {
+    if (index > -1) {
+      // if the message is present.
+      this.messages.splice(index, 1);
+    }
   }
 }

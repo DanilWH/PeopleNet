@@ -184,3 +184,168 @@ A simple social media application built for the purpose of introducing to RESTfu
       | <-------- connection closed ---------> |
       |                                        |
    ```
+
+## 9'th commit
+
+   ### What are functional interfaces
+   
+   Here's an example of a functional interface.
+   ```java
+   @FunctionalInterface
+   public interface CustomFunctionalInterface {
+      
+       //Single abstract method  
+       public void firstMethod();
+   }
+   ```
+   The `@FunctionalInterface` is just an informative annotation.
+   
+   You can use a functional interface when you need to determine a behavior of a function expressed by a lambda.
+   
+   ### What are lambda expressions (in details).
+   A lambda is an anonymous function that can be used to determine a behavior of, for example, an interface.
+   To understand the usage of lambda expressions from the ground up, we will first have to define a functional interface.
+   ```java
+   @FunctionalInterface
+   public interface FirstInterface {
+       //the abstract method
+       public void singleMethod(String param);
+   }
+   ```
+   Now we can create an instance of the interface and determine its behavior with the help of a lambda.
+   ```java
+   FirstInterface instance = (String param) -> {System.out.println("My lambda says "+ param);};
+   ```
+   We can now pass this instance as a parameter wherever `FirstInterface` is expected.  
+   
+   Lambda syntax contains 2 variants of return types.
+   
+   - __Variant 1__ `(parameters) -> expression` – In this variant the return type of the lambda expression will be same
+       as the resultant type of the expression
+   - __Variant 2__ `(parameters) -> {statements;}` – In this variant, there will be no return type(or void return type)
+       unless the statements inside the curly braces explicitly return something at the end. In that case the return
+       type will be same as the type of the variable returned.
+   
+   Now, let's look at Lambda Expressions in practice:
+   ```java
+   public class FirstInterfacePrinter {
+    
+       public void print(FirstInterface firstInterface) {
+           firstInterface.singleMethod("apple");
+       }
+    
+       public static void main(String args[]) {
+           FirstInterfacePrinter printer=new FirstInterfacePrinter();
+           printer.print((String param) -> {
+               System.out.println("My lambda says "+ param);
+           });
+       }
+   }
+   ```
+   
+   ### What are function descriptors.
+   __Function Descriptor__ is a term used to describe the signature of the abstract method of a __Functional Interface__.
+   The signature of the abstract method of a __Functional Interface__ is syntactically the same as the signature of the
+   __Lambda Expression__. Hence, a __Function Descriptor__ also describes the signature of a lambda.  
+   
+   - Example 1:
+     ```java
+     @FunctionalInterface
+     public interface FirstInterface {
+       //Single abstract method
+       public void singleMethod(String param);
+     }
+     ```
+     For the above interface, named `FirstInterface`, __the signature of the abstract method OR the function descriptor
+     is__ `(String) -> void`.
+     
+   - Example 2:
+     ```java
+     @FunctionalInterface
+     public interface SecondInterface {
+       //Single abstract method
+       public long computeSum(int num1, int num2);
+     }
+     ```
+     __For SecondInterface the function descriptor is__ `(int,int) -> long`.
+   
+   ### What are generic classes and methods.
+   They allow you to reuse same classes/methods for different primitive data types.
+   
+   #### Generic class
+   
+   When creating a generic class, the type parameter for the class is added at the end of the class name within angle
+   `<>` brackets.
+   ```java
+   public class GenericClass<T> {
+       private T item;
+       public void setItem(T item) {
+           this.item = item;
+       }
+   
+       public T getItem() {
+           return this.item;
+       }
+   }
+   ```
+   Here, `T` is the data type parameter. `T`, `N`, and `E` are some of the letters used for data type parameters
+   according to Java conventions.  
+   
+   In the above example, you can pass it a specific data type when creating a `GenericClass` object.
+   ```java
+   public static void main(String[] args) {
+   
+       GenericClass<String> gc1 = new GenericClass<>();
+       gc1.setItem("hello");
+       String item1 = gc1.getItem(); // "hello"
+       gc1.setItem(new Object()); //Error
+   
+       GenericClass<Integer> gc2 = new GenericClass<>();
+       gc2.setItem(new Integer(1));
+       Integer item2 = gc2.getItem(); // 1
+       gc2.setItem("hello"); //Error
+   }
+   ```
+   You cannot pass a primitive data type to the data type parameter when creating a generic class object.
+   Only data types that extend Object type can be passed as type parameters.
+   
+   For example:
+   ```java
+   GenericClass<float> gc3 = new GenericClass<>(); //Error
+   ```
+
+   #### Generic methods
+   
+   ```java
+   public class GenericMethodClass {
+   
+       public static <T> void printItems(T[] arr){
+           for (int i=0; i< arr.length; i++) {
+               System.out.println(arr[i]);
+           }
+       }
+   
+       public static void main(String[] args) {
+           String[] arr1 = {"Cat", "Dog", "Mouse"};
+           Integer[] arr2 = {1, 2, 3};
+   
+           GenericMethodClass.printItems(arr1); // "Cat", "Dog", "Mouse"
+           GenericMethodClass.printItems(arr2); // 1, 2, 3
+       }
+   }
+   ```
+
+   #### The difference between 'T', 'E', 'N'...
+   It's more convention than anything else.
+  
+   * `T` is meant to be a Type  
+   * `E` is meant to be an Element (`List<E>`: a list of Elements)  
+   * `K` is Key (in a `Map<K,V>`)  
+   * `V` is Value (as a return value or mapped value)  
+   
+   They are fully interchangeable (conflicts in the same declaration notwithstanding).
+    
+   ### What are Consumers.
+   Consumer can be used in all contexts where an object needs to be consumed,i.e. taken as input, and some operation is
+   to be performed on the object without returning any result. In fact, a Consumer is nothing but a mere
+   __Functional Interface__.
