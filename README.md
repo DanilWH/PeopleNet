@@ -349,3 +349,9 @@ A simple social media application built for the purpose of introducing to RESTfu
    Consumer can be used in all contexts where an object needs to be consumed,i.e. taken as input, and some operation is
    to be performed on the object without returning any result. In fact, a Consumer is nothing but a mere
    __Functional Interface__.
+   
+## 10'th commit
+
+   ### Redux, state management pattern (or store pattern)
+   It allows you to manage application state. Used for convenient storing data in one place that any component can
+   access.

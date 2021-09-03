@@ -9,7 +9,7 @@
 
 
 <!-- TODO FOR-->
-<div class="col-sm-12 mb-3" *ngFor="let message of messages">
+<div class="col-sm-12 mb-3" *ngFor="let message of messages | async">
   <div class="panel panel-white post panel-shadow">
     <div class="post-heading">
       <div class="pull-left image">
