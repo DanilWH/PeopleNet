@@ -1,8 +1,5 @@
 import { Message } from "../_domains/message";
-import { ADD_MESSAGE, REMOVE_MESSAGE, UPDATE_MESSAGE } from "./actions";
-import { NgRedux } from "@angular-redux/store";
-import { MessageService } from "../_services/message.service";
-import { HttpErrorResponse } from "@angular/common/http";
+import { ADD_COMMENT, ADD_MESSAGE, REMOVE_MESSAGE, UPDATE_MESSAGE } from "./actions";
 
 export interface IAppState {
     messages: Message[]
@@ -20,18 +17,35 @@ export function rootReducer(state: any, action: any) {
             });
 
         case UPDATE_MESSAGE:
-            const index = state.messages.findIndex((item: Message) => item.id === action.message.id);
+            const updateMessageIndex = state.messages.findIndex((item: Message) => item.id === action.message.id);
             return Object.assign({}, state, {
                 messages: [
-                    ...state.messages.slice(0, index),
+                    ...state.messages.slice(0, updateMessageIndex),
                     Object.assign({}, action.message),
-                    ...state.messages.slice(index + 1)
+                    ...state.messages.slice(updateMessageIndex + 1)
                 ]
             });
 
         case REMOVE_MESSAGE:
             return Object.assign({}, state, {
                 messages: state.messages.filter((item: Message) => item.id !== action.message.id)
+            });
+
+        case ADD_COMMENT:
+            const addCommentIndex = state.messages.findIndex((item: Message) => item.id === action.comment.message.id);
+            const message = state.messages[addCommentIndex];
+
+            return Object.assign({}, state, {
+                messages: [
+                    ...state.messages.slice(0, addCommentIndex),
+                    Object.assign({}, message, {
+                        comments: [
+                            ...action.comment.message.comments,
+                            action.comment
+                        ]
+                    }),
+                    ...state.messages.slice(addCommentIndex + 1)
+                ]
             });
     }
 

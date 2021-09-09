@@ -1,13 +1,16 @@
 package com.example.PeopleNet.controller;
 
 import com.example.PeopleNet.domain.Message;
+import com.example.PeopleNet.domain.User;
 import com.example.PeopleNet.domain.Views;
 import com.example.PeopleNet.dto.EventType;
 import com.example.PeopleNet.dto.ObjectType;
 import com.example.PeopleNet.repo.MessageRepo;
+import com.example.PeopleNet.service.UserService;
 import com.example.PeopleNet.util.WsSender;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -19,14 +22,16 @@ import java.util.function.BiConsumer;
 public class MessageController {
     private final MessageRepo messageRepo;
     private final BiConsumer<EventType, Message> wsSender;
+    private final UserService userService;
 
-    public MessageController(MessageRepo messageRepo, WsSender wsSender) {
+    public MessageController(MessageRepo messageRepo, WsSender wsSender, UserService userService) {
         this.messageRepo = messageRepo;
         this.wsSender = wsSender.getSender(ObjectType.MESSAGE, Views.IdText.class);
+        this.userService = userService;
     }
 
     @GetMapping
-    @JsonView(Views.IdText.class)
+    @JsonView(Views.FullMessage.class)
     public List<Message> list() {
         return this.messageRepo.findAll();
     }
@@ -38,7 +43,12 @@ public class MessageController {
 
     @PostMapping
     public Message create(@RequestBody Message message) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = (User) this.userService.loadUserByUsername(username);
+
         message.setCreationDate(LocalDateTime.now());
+        message.setAuthor(user);
+
         Message savedMessage = this.messageRepo.save(message);
 
         this.wsSender.accept(EventType.CREATE, savedMessage);

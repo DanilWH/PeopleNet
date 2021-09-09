@@ -8,6 +8,7 @@ import { TokenStorageService } from "../_services/token-storage.service";
 import { StateManipulationsService } from "../_services/state-manipulations.service";
 import { select } from "@angular-redux/store";
 import { Observable } from "rxjs";
+import { Comment } from "../_domains/comment";
 
 const headers = {
     'Authorization': 'Bearer ' + new TokenStorageService().getAccessToken()
@@ -77,6 +78,12 @@ export class HomeComponent implements OnInit {
     }
 
     public onDeleteMessage(message: Message): void {
-        this.stateManipulationsService.removeMessageAction(message).then(r => {});
+        this.stateManipulationsService.removeMessageAction(message);
+    }
+
+    public onAddComment(message: Message, commentForm: NgForm): void {
+        const comment: Comment = Object.assign(commentForm.value, { message: message });
+        this.stateManipulationsService.addCommentAction(comment);
+        commentForm.reset();
     }
 }

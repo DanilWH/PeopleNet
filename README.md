@@ -355,3 +355,41 @@ A simple social media application built for the purpose of introducing to RESTfu
    ### Redux, state management pattern (or store pattern)
    It allows you to manage application state. Used for convenient storing data in one place that any component can
    access.
+   
+## 11'th commit
+
+   - Comments with _JPA Entity Graph_.
+
+   ### EntityGraph
+   This is another way to describe a quiry in JPA.
+   Imagine we have an entity:
+   ```java
+   @Entity
+   public class Characteristic {
+   
+       @Id
+       private Long id;
+       private String type;
+       
+       @ManyToOne(fetch = FetchType.LAZY)
+       @JoinColumn
+       private Item item;
+   
+       //Getters and Setters
+   }
+   ```
+   We can see that the `item` property is loaded lazily. __So our goal is to load it eagerly when calling
+   `characteristicRepo.findAll()`.__
+   
+   To make that happen we need to add the `@EntityGraph(attributePaths = {"item"})` annotation above the `findAll()`
+   function in JPA repository:
+   ```java
+   public interface CharacteristicsRepository extends JpaRepository<Characteristic, Long> {
+       @EntityGraph(attributePaths = { "item" })
+       Characteristic findByType(String type);    
+   }
+   ```
+   This will load the `item` property of the `Characteristic` entity eagerly, __even though our entity declares a
+   lazy-loading strategy for this property__.
+   
+   For more information, go to [Spring _JPA Entity Graph_ Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.entity-graph).

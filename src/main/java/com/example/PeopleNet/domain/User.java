@@ -1,5 +1,6 @@
 package com.example.PeopleNet.domain;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,9 +20,12 @@ import java.util.Set;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonView(Views.IdText.class)
     private Long id;
+    @JsonView(Views.IdText.class)
     private String username;
     private String password;
+    @JsonView(Views.IdText.class)
     private String avatar;
     private String email;
     @Column(updatable = false)
