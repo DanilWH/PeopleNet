@@ -567,7 +567,7 @@ The JPA mappings look like this:
     }
     ```
 
-#### `FetchType.EAGER`
+## `FetchType.EAGER`
 
 Using `FetchType.EAGER` either implicitly or explicitly for your JPA associations is a bad idea because you are going to fetch way more data that you need. More, the `FetchType.EAGER` strategy is also prone to N+1 query issues.
 
