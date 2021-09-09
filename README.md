@@ -393,3 +393,389 @@ A simple social media application built for the purpose of introducing to RESTfu
    lazy-loading strategy for this property__.
    
    For more information, go to [Spring _JPA Entity Graph_ Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.entity-graph).
+   
+   ### What is the N+1 query problem
+-----------------------------
+
+The N+1 query problem happens when the data access framework executed N additional SQL statements to fetch the same data that could have been retrieved when executing the primary SQL query.
+
+The larger the value of N, the more queries will be executed, the larger the performance impact. And, unlike the slow query log that can help you find slow running queries, the N+1 issue won’t be spot because each individual additional query runs sufficiently fast to not trigger the slow query log.
+
+The problem is executing a large number of additional queries that, overall, take sufficient time to slow down response time.
+
+Let’s consider we have the following post and post_comments database tables which form a one-to-many table relationship:
+
+[![The `post` and `post_comments` tables][4]][4]
+
+We are going to create the following 4 `post` rows:
+    ```sql
+    INSERT INTO post (title, id)
+    VALUES ('High-Performance Java Persistence - Part 1', 1)
+     
+    INSERT INTO post (title, id)
+    VALUES ('High-Performance Java Persistence - Part 2', 2)
+     
+    INSERT INTO post (title, id)
+    VALUES ('High-Performance Java Persistence - Part 3', 3)
+     
+    INSERT INTO post (title, id)
+    VALUES ('High-Performance Java Persistence - Part 4', 4)
+    ```
+
+And, we will also create 4 `post_comment` child records:
+    ```sql
+    INSERT INTO post_comment (post_id, review, id)
+    VALUES (1, 'Excellent book to understand Java Persistence', 1)
+     
+    INSERT INTO post_comment (post_id, review, id)
+    VALUES (2, 'Must-read for Java developers', 2)
+     
+    INSERT INTO post_comment (post_id, review, id)
+    VALUES (3, 'Five Stars', 3)
+     
+    INSERT INTO post_comment (post_id, review, id)
+    VALUES (4, 'A great reference book', 4)
+    ```
+
+N+1 query problem with plain SQL
+--------------------------------
+
+If you select the `post_comments` using this SQL query:
+    ```java
+    List<Tuple> comments = entityManager.createNativeQuery("""
+        SELECT
+            pc.id AS id,
+            pc.review AS review,
+            pc.post_id AS postId
+        FROM post_comment pc
+        """, Tuple.class)
+    .getResultList();
+    ```
+
+And, later, you decide to fetch the associated `post` `title` for each `post_comment`:
+    ```java
+    for (Tuple comment : comments) {
+        String review = (String) comment.get("review");
+        Long postId = ((Number) comment.get("postId")).longValue();
+     
+        String postTitle = (String) entityManager.createNativeQuery("""
+            SELECT
+                p.title
+            FROM post p
+            WHERE p.id = :postId
+            """)
+        .setParameter("postId", postId)
+        .getSingleResult();
+     
+        LOGGER.info(
+            "The Post '{}' got this review '{}'",
+            postTitle,
+            review
+        );
+    }
+    ```
+
+You are going to trigger the N+1 query issue because, instead of one SQL query, you executed 5 (1 + 4):
+    ```sql
+    SELECT
+        pc.id AS id,
+        pc.review AS review,
+        pc.post_id AS postId
+    FROM post_comment pc
+     
+    SELECT p.title FROM post p WHERE p.id = 1
+    -- The Post 'High-Performance Java Persistence - Part 1' got this review
+    -- 'Excellent book to understand Java Persistence'
+        
+    SELECT p.title FROM post p WHERE p.id = 2
+    -- The Post 'High-Performance Java Persistence - Part 2' got this review
+    -- 'Must-read for Java developers'
+         
+    SELECT p.title FROM post p WHERE p.id = 3
+    -- The Post 'High-Performance Java Persistence - Part 3' got this review
+    -- 'Five Stars'
+         
+    SELECT p.title FROM post p WHERE p.id = 4
+    -- The Post 'High-Performance Java Persistence - Part 4' got this review
+    -- 'A great reference book'
+    ```
+
+Fixing the N+1 query issue is very easy. All you need to do is extract all the data you need in the original SQL query, like this:
+    ```java
+    List<Tuple> comments = entityManager.createNativeQuery("""
+        SELECT
+            pc.id AS id,
+            pc.review AS review,
+            p.title AS postTitle
+        FROM post_comment pc
+        JOIN post p ON pc.post_id = p.id
+        """, Tuple.class)
+    .getResultList();
+     
+    for (Tuple comment : comments) {
+        String review = (String) comment.get("review");
+        String postTitle = (String) comment.get("postTitle");
+     
+        LOGGER.info(
+            "The Post '{}' got this review '{}'",
+            postTitle,
+            review
+        );
+    }
+    ```
+
+This time, only one SQL query is executed to fetch all the data we are further interested in using.
+
+N+1 query problem with JPA and Hibernate
+----------------------------------------
+
+When using JPA and Hibernate, there are several ways you can trigger the N+1 query issue, so it’s very important to know how you can avoid these situations.
+
+For the next examples, consider we are mapping the `post` and `post_comments` tables to the following entities:
+
+[![`Post` and `PostComment` entities][5]][5]
+
+The JPA mappings look like this:
+    ```java
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public class Post {
+     
+        @Id
+        private Long id;
+     
+        private String title;
+     
+        //Getters and setters omitted for brevity
+    }
+    ```
+     
+    ```java
+    @Entity(name = "PostComment")
+    @Table(name = "post_comment")
+    public class PostComment {
+     
+        @Id
+        private Long id;
+     
+        @ManyToOne
+        private Post post;
+     
+        private String review;
+     
+        //Getters and setters omitted for brevity
+    }
+    ```
+
+#### `FetchType.EAGER`
+
+Using `FetchType.EAGER` either implicitly or explicitly for your JPA associations is a bad idea because you are going to fetch way more data that you need. More, the `FetchType.EAGER` strategy is also prone to N+1 query issues.
+
+Unfortunately, the `@ManyToOne` and `@OneToOne` associations use `FetchType.EAGER` by default, so if your mappings look like this:
+    ```java
+    @ManyToOne
+    private Post post;
+    ```
+
+You are using the `FetchType.EAGER` strategy, and, every time you forget to use `JOIN FETCH` when loading some `PostComment` entities with a JPQL or Criteria API query:
+    ```java
+    List<PostComment> comments = entityManager
+    .createQuery("""
+        select pc
+        from PostComment pc
+        """, PostComment.class)
+    .getResultList();
+    ```
+
+You are going to trigger the N+1 query issue:
+    ```sql
+    SELECT 
+        pc.id AS id1_1_, 
+        pc.post_id AS post_id3_1_, 
+        pc.review AS review2_1_ 
+    FROM 
+        post_comment pc;
+    
+    SELECT p.id AS id1_0_0_, p.title AS title2_0_0_ FROM post p WHERE p.id = 1;
+    SELECT p.id AS id1_0_0_, p.title AS title2_0_0_ FROM post p WHERE p.id = 2;
+    SELECT p.id AS id1_0_0_, p.title AS title2_0_0_ FROM post p WHERE p.id = 3;
+    SELECT p.id AS id1_0_0_, p.title AS title2_0_0_ FROM post p WHERE p.id = 4;
+    ```
+
+Notice the additional `SELECT` statements that are executed because the `post` association has to be fetched prior to returning the `List` of `PostComment` entities.
+
+Unlike the default fetch plan, which you are using when calling the `find` method of the `EnrityManager`, a JPQL or Criteria API query defines an explicit plan that Hibernate cannot change by injecting a JOIN FETCH automatically. So, you need to do it manually.
+
+If you didn't need the `post` association at all, you are out of luck when using `FetchType.EAGER` because there is no way to avoid fetching it. That's why it's better to use `FetchType.LAZY` by default.
+
+But, if you wanted to use `post` association, then you can use `JOIN FETCH` to avoid the N+1 query problem:
+    ```java
+    List<PostComment> comments = entityManager.createQuery("""
+        select pc
+        from PostComment pc
+        join fetch pc.post p
+        """, PostComment.class)
+    .getResultList();
+    
+    for(PostComment comment : comments) {
+        LOGGER.info(
+            "The Post '{}' got this review '{}'", 
+            comment.getPost().getTitle(), 
+            comment.getReview()
+        );
+    }
+    ```
+
+This time, Hibernate will execute a single SQL statement:
+    ```sql
+    SELECT 
+        pc.id as id1_1_0_, 
+        pc.post_id as post_id3_1_0_, 
+        pc.review as review2_1_0_, 
+        p.id as id1_0_1_, 
+        p.title as title2_0_1_ 
+    FROM 
+        post_comment pc 
+    INNER JOIN 
+        post p ON pc.post_id = p.id
+        
+    -- The Post 'High-Performance Java Persistence - Part 1' got this review 
+    -- 'Excellent book to understand Java Persistence'
+    
+    -- The Post 'High-Performance Java Persistence - Part 2' got this review 
+    -- 'Must-read for Java developers'
+    
+    -- The Post 'High-Performance Java Persistence - Part 3' got this review 
+    -- 'Five Stars'
+    
+    -- The Post 'High-Performance Java Persistence - Part 4' got this review 
+    -- 'A great reference book'
+    ```
+
+## `FetchType.LAZY`
+
+Even if you switch to using `FetchType.LAZY` explicitly for all associations, you can still bump into the N+1 issue.
+
+This time, the `post` association is mapped like this:
+```java
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
+```
+
+Now, when you fetch the `PostComment` entities:
+
+```java
+    List<PostComment> comments = entityManager
+    .createQuery("""
+        select pc
+        from PostComment pc
+        """, PostComment.class)
+    .getResultList();
+ ```
+
+Hibernate will execute a single SQL statement:
+```sql
+    SELECT 
+        pc.id AS id1_1_, 
+        pc.post_id AS post_id3_1_, 
+        pc.review AS review2_1_ 
+    FROM 
+        post_comment pc
+ ```
+
+But, if afterward, you are going to reference the lazy-loaded `post` association:
+```java
+    for(PostComment comment : comments) {
+        LOGGER.info(
+            "The Post '{}' got this review '{}'", 
+            comment.getPost().getTitle(), 
+            comment.getReview()
+        );
+    }
+ ```
+
+You will get the N+1 query issue:
+```sql
+    SELECT p.id AS id1_0_0_, p.title AS title2_0_0_ FROM post p WHERE p.id = 1
+    -- The Post 'High-Performance Java Persistence - Part 1' got this review 
+    -- 'Excellent book to understand Java Persistence'
+    
+    SELECT p.id AS id1_0_0_, p.title AS title2_0_0_ FROM post p WHERE p.id = 2
+    -- The Post 'High-Performance Java Persistence - Part 2' got this review 
+    -- 'Must-read for Java developers'
+    
+    SELECT p.id AS id1_0_0_, p.title AS title2_0_0_ FROM post p WHERE p.id = 3
+    -- The Post 'High-Performance Java Persistence - Part 3' got this review 
+    -- 'Five Stars'
+    
+    SELECT p.id AS id1_0_0_, p.title AS title2_0_0_ FROM post p WHERE p.id = 4
+    -- The Post 'High-Performance Java Persistence - Part 4' got this review 
+    -- 'A great reference book'
+ ```
+
+Because the `post` association is fetched lazily, a secondary SQL statement will be executed when accessing the lazy association in order to build the log message.
+
+Again, the fix consists in adding a `JOIN FETCH` clause to the JPQL query:
+```java
+    List<PostComment> comments = entityManager.createQuery("""
+        select pc
+        from PostComment pc
+        join fetch pc.post p
+        """, PostComment.class)
+    .getResultList();
+    
+    for(PostComment comment : comments) {
+        LOGGER.info(
+            "The Post '{}' got this review '{}'", 
+            comment.getPost().getTitle(), 
+            comment.getReview()
+        );
+    }
+ ```
+
+And, just like in the `FetchType.EAGER` example, this JPQL query will generate a single SQL statement.
+
+> Even if you are using `FetchType.LAZY` and don't reference the child association of a bidirectional `@OneToOne` JPA relationship, you can still trigger the N+1 query issue.
+
+## How to automatically detect the N+1 query issue
+
+If you want to automatically detect N+1 query issue in your data access layer, you can use the [`db-util`][7] open-source project.
+
+First, you need to add the following Maven dependency:
+```xml
+    <dependency>
+        <groupId>com.vladmihalcea</groupId>
+        <artifactId>db-util</artifactId>
+        <version>${db-util.version}</version>
+    </dependency>
+ ```
+
+Afterward, you just have to use `SQLStatementCountValidator` utility to assert the underlying SQL statements that get generated:
+```java
+    SQLStatementCountValidator.reset();
+    
+    List<PostComment> comments = entityManager.createQuery("""
+    	select pc
+    	from PostComment pc
+    	""", PostComment.class)
+    .getResultList();
+    
+    SQLStatementCountValidator.assertSelectCount(1);
+ ```
+
+In case you are using `FetchType.EAGER` and run the above test case, you will get the following test case failure:
+```sql
+    SELECT 
+    	pc.id as id1_1_, 
+    	pc.post_id as post_id3_1_, 
+    	pc.review as review2_1_ 
+    FROM 
+    	post_comment pc
+    
+    SELECT p.id as id1_0_0_, p.title as title2_0_0_ FROM post p WHERE p.id = 1
+    
+    SELECT p.id as id1_0_0_, p.title as title2_0_0_ FROM post p WHERE p.id = 2
+    
+    
+    -- SQLStatementCountMismatchException: Expected 1 statement(s) but recorded 3 instead!
+ ```
