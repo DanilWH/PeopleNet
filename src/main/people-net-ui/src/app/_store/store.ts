@@ -32,19 +32,19 @@ export function rootReducer(state: any, action: any) {
             });
 
         case ADD_COMMENT:
-            const addCommentIndex = state.messages.findIndex((item: Message) => item.id === action.comment.message.id);
-            const message = state.messages[addCommentIndex];
+            const messageIndex = state.messages.findIndex((item: Message) => item.id === action.comment.message.id);
+            const message = state.messages[messageIndex];
 
             return Object.assign({}, state, {
                 messages: [
-                    ...state.messages.slice(0, addCommentIndex),
+                    ...state.messages.slice(0, messageIndex),
                     Object.assign({}, message, {
                         comments: [
-                            ...action.comment.message.comments,
+                            ...message.comments,
                             action.comment
                         ]
                     }),
-                    ...state.messages.slice(addCommentIndex + 1)
+                    ...state.messages.slice(messageIndex + 1)
                 ]
             });
     }

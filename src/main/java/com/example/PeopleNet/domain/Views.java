@@ -8,4 +8,6 @@ public final class Views {
     public interface IdCreationTime extends Id{}
 
     public interface FullMessage extends IdText {}
+
+    public interface FullComment extends IdText {}
 }

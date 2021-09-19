@@ -779,3 +779,16 @@ In case you are using `FetchType.EAGER` and run the above test case, you will ge
     
     -- SQLStatementCountMismatchException: Expected 1 statement(s) but recorded 3 instead!
  ```
+
+## 12'th commit
+
+   The solution for self-reference cycles. Jackson.
+   Put the following annotation above the back-referenced class:
+   ```java
+    @JsonIdentityInfo(
+            property = "id",
+            generator = ObjectIdGenerators.PropertyGenerator.class
+    )
+   ```
+   In the "property" argument we define what we want to show in JSON when the self-reference case occurs.
+   

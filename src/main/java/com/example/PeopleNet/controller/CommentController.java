@@ -21,7 +21,7 @@ public class CommentController {
     public final UserService userService;
 
     @PostMapping
-    @JsonView(Views.FullMessage.class)
+    @JsonView(Views.FullComment.class)
     public Comment create(@RequestBody Comment comment) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = (User) this.userService.loadUserByUsername(username);

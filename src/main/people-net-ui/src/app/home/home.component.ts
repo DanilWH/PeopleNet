@@ -9,6 +9,8 @@ import { StateManipulationsService } from "../_services/state-manipulations.serv
 import { select } from "@angular-redux/store";
 import { Observable } from "rxjs";
 import { Comment } from "../_domains/comment";
+import { COMMENT, MESSAGE } from "./object-types";
+import { CREATE, REMOVE, UPDATE } from "./event-types";
 
 const headers = {
     'Authorization': 'Bearer ' + new TokenStorageService().getAccessToken()
@@ -40,16 +42,25 @@ export class HomeComponent implements OnInit {
         );
 
         this.webSocketService.addHandler((data: any) => {
-            if (data.objectType === 'MESSAGE') {
+            if (data.objectType === MESSAGE) {
                 switch (data.eventType) {
-                    case 'CREATE':
+                    case CREATE:
                         this.stateManipulationsService.addMessageMutation(data.body);
                         break;
-                    case 'UPDATE':
+                    case UPDATE:
                         this.stateManipulationsService.updateMessageMutation(data.body);
                         break;
-                    case 'REMOVE':
+                    case REMOVE:
                         this.stateManipulationsService.removeMessageMutation(data.body);
+                        break;
+                    default:
+                        console.log(`Looks like the event type is unknown "${data.eventType}".`);
+                }
+            }
+            else if (data.objectType === COMMENT) {
+                switch (data.eventType) {
+                    case CREATE:
+                        this.stateManipulationsService.addCommentMutation(data.body);
                         break;
                     default:
                         console.log(`Looks like the event type is unknown "${data.eventType}".`);
@@ -82,7 +93,12 @@ export class HomeComponent implements OnInit {
     }
 
     public onAddComment(message: Message, commentForm: NgForm): void {
-        const comment: Comment = Object.assign(commentForm.value, { message: message });
+        const comment: Comment = Object.assign(commentForm.value, {
+            message: {
+                id: message.id
+            }
+        });
+
         this.stateManipulationsService.addCommentAction(comment);
         commentForm.reset();
     }

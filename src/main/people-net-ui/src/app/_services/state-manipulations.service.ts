@@ -38,7 +38,12 @@ export class StateManipulationsService {
     }
 
     public addCommentMutation(comment: Comment) {
-        this.ngRedux.dispatch({ type: ADD_COMMENT, comment: comment})
+        const message = this.ngRedux.getState().messages.find((item: Message) => item.id === comment.message.id);
+        const index = message.comments.findIndex((item: Comment) => item.id === comment.id);
+
+        if (index === -1) {
+            this.ngRedux.dispatch({ type: ADD_COMMENT, comment: comment})
+        }
     }
 
     public async addMessageAction(message: Message) {
@@ -58,6 +63,6 @@ export class StateManipulationsService {
 
     public async addCommentAction(comment: Comment) {
         const data = await this.commentService.addComment(comment).toPromise();
-        this.addCommentMutation(Object.assign(data, { message: comment.message }));
+        this.addCommentMutation(data);
     }
 }

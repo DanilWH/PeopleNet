@@ -26,7 +26,7 @@ public class MessageController {
 
     public MessageController(MessageRepo messageRepo, WsSender wsSender, UserService userService) {
         this.messageRepo = messageRepo;
-        this.wsSender = wsSender.getSender(ObjectType.MESSAGE, Views.IdText.class);
+        this.wsSender = wsSender.getSender(ObjectType.MESSAGE, Views.FullMessage.class);
         this.userService = userService;
     }
 
@@ -42,6 +42,7 @@ public class MessageController {
     }
 
     @PostMapping
+    @JsonView(Views.FullMessage.class)
     public Message create(@RequestBody Message message) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = (User) this.userService.loadUserByUsername(username);

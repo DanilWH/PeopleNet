@@ -2,19 +2,33 @@ package com.example.PeopleNet.service;
 
 import com.example.PeopleNet.domain.Comment;
 import com.example.PeopleNet.domain.User;
+import com.example.PeopleNet.domain.Views;
+import com.example.PeopleNet.dto.EventType;
+import com.example.PeopleNet.dto.ObjectType;
 import com.example.PeopleNet.repo.CommentRepo;
-import lombok.RequiredArgsConstructor;
+import com.example.PeopleNet.util.WsSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.function.BiConsumer;
+
 @Service
-@RequiredArgsConstructor
 public class CommentService {
     private final CommentRepo commentRepo;
+    private final BiConsumer<EventType, Comment> wsSender;
+
+    @Autowired
+    public CommentService(CommentRepo commentRepo, WsSender wsSender) {
+        this.commentRepo = commentRepo;
+        this.wsSender = wsSender.getSender(ObjectType.COMMENT, Views.FullComment.class);
+    }
 
     public Comment create(Comment comment, User user) {
         comment.setAuthor(user);
-        this.commentRepo.save(comment);
+        Comment savedComment = this.commentRepo.save(comment);
 
-        return comment;
+        this.wsSender.accept(EventType.CREATE, savedComment);
+
+        return savedComment;
     }
 }
