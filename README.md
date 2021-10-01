@@ -792,3 +792,6 @@ In case you are using `FetchType.EAGER` and run the above test case, you will ge
    ```
    In the "property" argument we define what we want to show in JSON when the self-reference case occurs.
    
+## 13'th commit
+
+   Infinite scrolling of lists.

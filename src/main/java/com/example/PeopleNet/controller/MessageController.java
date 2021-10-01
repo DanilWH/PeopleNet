@@ -3,37 +3,43 @@ package com.example.PeopleNet.controller;
 import com.example.PeopleNet.domain.Message;
 import com.example.PeopleNet.domain.User;
 import com.example.PeopleNet.domain.Views;
-import com.example.PeopleNet.dto.EventType;
-import com.example.PeopleNet.dto.ObjectType;
-import com.example.PeopleNet.repo.MessageRepo;
+import com.example.PeopleNet.dto.MessagePageDto;
+import com.example.PeopleNet.service.MessageService;
 import com.example.PeopleNet.service.UserService;
-import com.example.PeopleNet.util.WsSender;
 import com.fasterxml.jackson.annotation.JsonView;
-import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 @RestController
 @RequestMapping("/api/message")
 public class MessageController {
-    private final MessageRepo messageRepo;
-    private final BiConsumer<EventType, Message> wsSender;
+    private final MessageService messageService;
     private final UserService userService;
 
-    public MessageController(MessageRepo messageRepo, WsSender wsSender, UserService userService) {
-        this.messageRepo = messageRepo;
-        this.wsSender = wsSender.getSender(ObjectType.MESSAGE, Views.FullMessage.class);
+    @Autowired
+    public MessageController(MessageService messageService, UserService userService) {
+        this.messageService = messageService;
         this.userService = userService;
     }
 
-    @GetMapping
+    @GetMapping()
     @JsonView(Views.FullMessage.class)
     public List<Message> list() {
-        return this.messageRepo.findAll();
+        return this.messageService.findAll();
+    }
+
+    @GetMapping("page")
+    @JsonView(Views.FullMessage.class)
+    public MessagePageDto page(
+            @PageableDefault(size = 3, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return this.messageService.findAll(pageable);
     }
 
     @GetMapping("{id}")
@@ -47,14 +53,7 @@ public class MessageController {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = (User) this.userService.loadUserByUsername(username);
 
-        message.setCreationDate(LocalDateTime.now());
-        message.setAuthor(user);
-
-        Message savedMessage = this.messageRepo.save(message);
-
-        this.wsSender.accept(EventType.CREATE, savedMessage);
-
-        return savedMessage;
+        return this.messageService.create(message, user);
     }
 
     @PutMapping("{id}")
@@ -62,17 +61,11 @@ public class MessageController {
             @PathVariable("id") Message messageFromDb,
             @RequestBody Message message
     ) {
-        BeanUtils.copyProperties(message, messageFromDb, "id");
-        Message updatedMessage = this.messageRepo.save(messageFromDb);
-
-        this.wsSender.accept(EventType.UPDATE, updatedMessage);
-
-        return updatedMessage;
+        return this.messageService.update(messageFromDb, message);
     }
 
     @DeleteMapping("{id}")
     public void delete(@PathVariable("id") Message message) {
-        this.messageRepo.delete(message);
-        this.wsSender.accept(EventType.REMOVE, message);
+        this.messageService.delete(message);
     }
 }

@@ -6,6 +6,7 @@ import { MessageService } from './_services/message.service';
 import { TokenStorageService } from "./_services/token-storage.service";
 import { User } from "./_domains/user";
 import { WebSocketService } from "./_services/web-socket.service";
+import {StateManipulationsService} from './_services/state-manipulations.service';
 
 @Component({
     selector: 'app-root',
@@ -18,7 +19,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private tokenStorageService: TokenStorageService,
-    private webSocketService: WebSocketService
+    private webSocketService: WebSocketService,
+    private stateManipulationsService: StateManipulationsService
   ) { }
 
   ngOnInit(): void {
@@ -29,6 +31,8 @@ export class AppComponent implements OnInit {
     }
 
     this.webSocketService.connect();
+
+    this.stateManipulationsService.loadMessagePageAction();
   }
 
   logout(): void {

@@ -10,83 +10,55 @@
 
 <!-- TODO FOR-->
 <div class="col-sm-12 mb-3" *ngFor="let message of messages | async">
-  <div class="panel panel-white post panel-shadow">
-    <div class="post-heading">
-      <div class="pull-left image">
-        <img src="{{ message.author.avatar }}" class="rounded-circle avatar" alt="user profile image">
-      </div>
-      <div class="pull-left meta">
-        <div class="title h5">
-          <a href="#"><b>{{ message.author.username }}</b></a> made a post.
-        </div>
-        <h6 class="text-muted time">1 minute ago</h6>
-      </div>
-    </div>
-    <div class="post-description">
-      <p>{{ message.text }}</p>
-      <div class="stats">
-        <!-- Edit. -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
-          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>
-        </svg>
-        <input class="btn btn-default stat-item" type="button" value="Edit" (click)="onEditMessage(message)" />
-        <!-- Delete. -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-          <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-        </svg>
-        <input class="btn btn-default stat-item" type="button" value="Delete" (click)="onDeleteMessage(message)" />
-      </div>
-    </div>
-    <div class="post-footer">
-      <form (ngSubmit)="onAddComment(message, addCommentForm)" #addCommentForm="ngForm">
-        <div class="input-group mb-3">
-          <input name="text" ngModel type="text" class="form-control" placeholder="Write a comment" aria-label="Comment" aria-describedby="button-addon2">
-          <button id="button-addon2" class="btn btn-outline-dark" type="submit">Add</button>
-        </div>
-      </form>
-
-      <ul class="comments-list">
-        <li class="comment" *ngFor="let comment of message.comments">
-          <a class="pull-left" href="#">
-            <img class="rounded-circle avatar" src="{{ comment.author.avatar }}" alt="avatar">
-          </a>
-          <div class="comment-body">
-            <div class="comment-heading">
-              <h4 class="user">{{ comment.author.username }}</h4>
-              <h5 class="time">5 minutes ago</h5>
+    <div class="panel panel-white post panel-shadow">
+        <div class="post-heading">
+            <div class="pull-left image">
+                <img src="{{ message.author.avatar }}" class="rounded-circle avatar" alt="user profile image">
             </div>
-            <p>{{ comment.text }}</p>
-          </div>
-<!--
-          <ul class="comments-list">
-            <li class="comment">
-              <a class="pull-left" href="#">
-                <img class="avatar" src="https://bootdey.com/img/Content/user_3.jpg" alt="avatar">
-              </a>
-              <div class="comment-body">
-                <div class="comment-heading">
-                  <h4 class="user">Ryan Haywood</h4>
-                  <h5 class="time">3 minutes ago</h5>
+            <div class="pull-left meta">
+                <div class="title h5">
+                    <a href="#"><b>{{ message.author.username }}</b></a> made a post.
                 </div>
-                <p>Relax my friend</p>
-              </div>
-            </li>
-            <li class="comment">
-              <a class="pull-left" href="#">
-                <img class="avatar" src="https://bootdey.com/img/Content/user_2.jpg" alt="avatar">
-              </a>
-              <div class="comment-body">
-                <div class="comment-heading">
-                  <h4 class="user">Gavino Free</h4>
-                  <h5 class="time">3 minutes ago</h5>
+                <h6 class="text-muted time">1 minute ago</h6>
+            </div>
+        </div>
+        <div class="post-description">
+            <p>{{ message.text }}</p>
+            <div class="stats">
+                <!-- Edit. -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>
+                </svg>
+                <input class="btn btn-default stat-item" type="button" value="Edit" (click)="onEditMessage(message)" />
+                <!-- Delete. -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                </svg>
+                <input class="btn btn-default stat-item" type="button" value="Delete" (click)="onDeleteMessage(message)" />
+            </div>
+        </div>
+        <div class="post-footer">
+            <form (ngSubmit)="onAddComment(message, addCommentForm)" #addCommentForm="ngForm">
+                <div class="input-group mb-3">
+                    <input name="text" ngModel type="text" class="form-control" placeholder="Write a comment" aria-label="Comment" aria-describedby="button-addon2">
+                    <button id="button-addon2" class="btn btn-outline-dark" type="submit">Add</button>
                 </div>
-                <p>Ok, cool.</p>
-              </div>
-            </li>
-          </ul>
--->
-        </li>
-      </ul>
+            </form>
+
+            <ul class="comments-list">
+                <li class="comment" *ngFor="let comment of message.comments">
+                    <a class="pull-left" href="#">
+                        <img class="rounded-circle avatar" src="{{ comment.author.avatar }}" alt="avatar">
+                    </a>
+                    <div class="comment-body">
+                        <div class="comment-heading">
+                            <h4 class="user">{{ comment.author.username }}</h4>
+                            <h5 class="time">5 minutes ago</h5>
+                        </div>
+                        <p>{{ comment.text }}</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
-  </div>
 </div>

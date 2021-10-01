@@ -1,12 +1,24 @@
-import { Message } from "../_domains/message";
-import { ADD_COMMENT, ADD_MESSAGE, REMOVE_MESSAGE, UPDATE_MESSAGE } from "./actions";
+import {Message} from "../_domains/message";
+import {
+    ADD_COMMENT,
+    ADD_MESSAGE,
+    ADD_MESSAGE_PAGE,
+    REMOVE_MESSAGE,
+    UPDATE_CURRENT_PAGE,
+    UPDATE_MESSAGE,
+    UPDATE_TOTAL_PAGES
+} from "./actions";
 
 export interface IAppState {
-    messages: Message[]
+    messages: Message[];
+    currentPage: number;
+    totalPages: number;
 }
 
 export const INITIAL_STATE: IAppState = {
-    messages: []
+    messages: [],
+    currentPage: -1,
+    totalPages: 1
 }
 
 export function rootReducer(state: any, action: any) {
@@ -47,6 +59,25 @@ export function rootReducer(state: any, action: any) {
                     ...state.messages.slice(messageIndex + 1)
                 ]
             });
+
+        case ADD_MESSAGE_PAGE:
+            const concatMessages: Message[] = state.messages.concat(action.messages);
+            const uniqueMessages: Message[] = concatMessages.filter((currentMessage: Message, currentMessageIdx: number) => {
+                const initialMessageIdx = concatMessages.findIndex((initialMessage: Message) => initialMessage.id === currentMessage.id);
+                return initialMessageIdx === currentMessageIdx;
+            });
+
+            return Object.assign({}, state, {
+                messages: uniqueMessages
+            });
+
+        case UPDATE_CURRENT_PAGE:
+            state.currentPage = action.currentPage;
+            break;
+
+        case UPDATE_TOTAL_PAGES:
+            state.totalPages = action.totalPages;
+            break;
     }
 
     return state;

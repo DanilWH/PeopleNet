@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import { Message } from "../_domains/message";
 import { MessageService } from "../_services/message.service";
-import { HttpErrorResponse } from "@angular/common/http";
 import { NgForm } from "@angular/forms";
 import { WebSocketService } from "../_services/web-socket.service";
 import { TokenStorageService } from "../_services/token-storage.service";
@@ -32,15 +31,6 @@ export class HomeComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.messageService.getMessages().subscribe(
-            (data: Message[]) => {
-                data.forEach(message => this.stateManipulationsService.addMessageMutation(message));
-            },
-            (error: HttpErrorResponse) => {
-                alert(error.message);
-            }
-        );
-
         this.webSocketService.addHandler((data: any) => {
             if (data.objectType === MESSAGE) {
                 switch (data.eventType) {
@@ -70,6 +60,16 @@ export class HomeComponent implements OnInit {
                 console.log(`Looks like the object type is unknown "${data.objectType}" .`);
             }
         });
+    }
+
+    @HostListener("window:scroll", ["$event"])
+    onWindowScroll() {
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+        if (scrollTop + clientHeight >= scrollHeight - 1) {
+            console.log("bottoom");
+            this.stateManipulationsService.loadMessagePageAction();
+        }
     }
 
     public onSaveMessage(saveMessageForm: NgForm): void {

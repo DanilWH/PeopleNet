@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Message } from "../_domains/message";
 import { environment } from 'src/environments/environment';
+import {MessagePage} from '../_domains/messagePage';
 
 const apiServerUrl = environment.apiBaseUrl;
 
@@ -15,6 +16,10 @@ export class MessageService {
 
     public getMessages(): Observable<Message[]> {
         return this.http.get<Message[]>(`${apiServerUrl}/api/message`);
+    }
+
+    public getMessagePage(currentPage: number): Observable<MessagePage> {
+        return this.http.get<MessagePage>(`${apiServerUrl}/api/message/page`, { params: { page: currentPage } });
     }
 
     public getMessage(id: string): Observable<Message> {
