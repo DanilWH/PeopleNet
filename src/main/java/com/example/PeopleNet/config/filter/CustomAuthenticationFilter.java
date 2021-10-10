@@ -50,6 +50,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         String accessToken = JwtUtils.generateAccessToken(user);
         String refreshToken = JwtUtils.generateRefreshToken(user);
 
-        new ObjectMapper().writeValue(response.getOutputStream(), JwtUtils.getJwtResponse(user, accessToken, refreshToken));
+        new ObjectMapper().writeValue(response.getOutputStream(), JwtUtils.getJwtResponse(user.getId(), accessToken, refreshToken));
     }
 }

@@ -1,61 +1,68 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from "../_services/auth.service";
-import { User } from "../_domains/user";
-import { TokenStorageService } from "../_services/token-storage.service";
-import { ActivatedRoute, Route, Router, Routes } from "@angular/router";
+import {Component, OnInit} from '@angular/core';
+import {AuthService} from "../_services/auth.service";
+import {User} from "../_domains/user";
+import {TokenStorageService} from "../_services/token-storage.service";
+import {ActivatedRoute, Route, Router, Routes} from "@angular/router";
+import {ProfileService} from "../_services/profile.service";
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  public form: User = new User();
-  public isLoggedIn: boolean = false;
-  public isLoginFail: boolean = false;
-  public infoMessage: string = '';
+    public form: User = new User();
+    public isLoggedIn: boolean = false;
+    public isLoginFail: boolean = false;
+    public infoMessage: string = '';
 
-  constructor(
-    private authService: AuthService,
-    private tokenStorageService: TokenStorageService,
-    private route: ActivatedRoute
-  ) { }
-
-  ngOnInit(): void {
-    this.route.queryParams.subscribe(
-      (params) => {
-        if (params.registered !== undefined && params.registered === 'true') {
-          this.infoMessage = 'Registration is successful! Please, login.';
-        }
-      }
-    );
-
-    if (this.tokenStorageService.getAccessToken()) {
-      this.isLoggedIn = true;
+    constructor(
+        private authService: AuthService,
+        private tokenStorageService: TokenStorageService,
+        private route: ActivatedRoute,
+        private profileService: ProfileService
+    ) {
     }
-  }
 
-  public onSubmit(): void {
-    this.authService.login(this.form.username, this.form.password).subscribe(
-      (data: User) => {
-        this.tokenStorageService.saveTokens(data.accessToken, data.refreshToken);
-        this.tokenStorageService.saveUser(data);
+    ngOnInit(): void {
+        this.route.queryParams.subscribe(
+            (params) => {
+                if (params.registered !== undefined && params.registered === 'true') {
+                    this.infoMessage = 'Registration is successful! Please, login.';
+                }
+            }
+        );
 
-        this.isLoggedIn = true;
-        this.isLoginFail = false;
-        this.infoMessage = '';
+        if (this.tokenStorageService.getAccessToken()) {
+            this.isLoggedIn = true;
+        }
+    }
 
-        this.reloadPage();
-      },
-      (error: any) => {
-        console.log(error.getMessage());
-        this.isLoginFail = true;
-      }
-    )
-  }
+    public onSubmit(): void {
+        this.authService.login(this.form.username, this.form.password).subscribe(
+            (jwtResponse: any) => {
+                this.tokenStorageService.saveTokens(jwtResponse.accessToken, jwtResponse.refreshToken);
+                this.profileService.get(jwtResponse.id).subscribe(
+                    (user: User) => {
+                        this.tokenStorageService.saveUser(user);
 
-  private reloadPage(): void {
-    window.location.reload();
-  }
+                        this.isLoggedIn = true;
+                        this.isLoginFail = false;
+                        this.infoMessage = '';
+
+                        this.reloadPage();
+                    }
+                );
+            },
+            (error: any) => {
+                console.log(error.getMessage());
+                this.isLoginFail = true;
+            }
+        )
+    }
+
+    private reloadPage(): void {
+        window.location.reload();
+    }
 
 }

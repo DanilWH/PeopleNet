@@ -795,3 +795,31 @@ In case you are using `FetchType.EAGER` and run the above test case, you will ge
 ## 13'th commit
 
    Infinite scrolling of lists.
+   
+## 14'th commit
+
+   __User's subscriptions.__
+
+   __Q:__ *What does `@JoinTable` do?*  
+   __A:__ `@JoinTable` creates a third table to maintain the relationship between the other two tables.
+
+   __Q:__ *How to make the `@AuthenticationPrincipal` work with __JWT__*  
+   __A:__ In order to make that happen you need to put the whole `UserDetails` object into
+   `UsernamePasswordAuthenticationToken` in the class that extends `OncePerRequestFilter`.
+   ```java
+   public class CustomAuthorizationFilter extends OncePerRequestFilter {
+    ...
+                String accessToken = JwtUtils.extractJwsFromHeader(request);
+                String subject = JwtUtils.verifyTokenAndReturnClaims(accessToken).getSubject();
+
+                User userDetails = (User) userService.loadUserByUsername(subject);
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+    ...
+}
+   ```
+   

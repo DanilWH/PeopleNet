@@ -32,6 +32,6 @@ public class JwtController {
         // extract the refresh token.
         String refreshToken = JwtUtils.extractJwsFromHeader(request);
 
-        return JwtUtils.getJwtResponse(user, newAccessToken, refreshToken);
+        return JwtUtils.getJwtResponse(user.getId(), newAccessToken, refreshToken);
     }
 }

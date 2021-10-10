@@ -60,6 +60,8 @@ export class HomeComponent implements OnInit {
                 console.log(`Looks like the object type is unknown "${data.objectType}" .`);
             }
         });
+
+        this.stateManipulationsService.loadMessagePageAction();
     }
 
     @HostListener("window:scroll", ["$event"])

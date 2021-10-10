@@ -7,8 +7,6 @@ export class User {
   gender: string;
   lastVisit: number;
   roles: string[];
-  accessToken: string;
-  refreshToken: string;
-  accessTokenExpiration: number;
-  refreshTokenExpiration: number;
+  subscriptions: number[];
+  subscribers: number[];
 }

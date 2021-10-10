@@ -7,7 +7,7 @@ import com.example.PeopleNet.service.CommentService;
 import com.example.PeopleNet.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +22,10 @@ public class CommentController {
 
     @PostMapping
     @JsonView(Views.FullComment.class)
-    public Comment create(@RequestBody Comment comment) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = (User) this.userService.loadUserByUsername(username);
-
+    public Comment create(
+            @AuthenticationPrincipal User user,
+            @RequestBody Comment comment
+    ) {
         return this.commentService.create(comment, user);
     }
 }

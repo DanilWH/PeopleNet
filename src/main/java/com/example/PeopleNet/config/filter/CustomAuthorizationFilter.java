@@ -32,7 +32,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
                 User userDetails = (User) userService.loadUserByUsername(subject);
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails.getUsername(),
+                        userDetails,
                         null,
                         userDetails.getAuthorities()
                 );

@@ -24,8 +24,10 @@ export class AuthInterceptor implements HttpInterceptor {
       request = request.clone({ headers: request.headers.set(TOKEN_HEADER_KEY, 'Bearer ' + accessToken) });
 
       let user: User = this.tokenStorageService.getUser();
-      user.lastVisit = Date.now();
-      this.tokenStorageService.saveUser(user);
+      if (user) {
+          user.lastVisit = Date.now();
+          this.tokenStorageService.saveUser(user);
+      }
     }
 
     return next.handle(request);

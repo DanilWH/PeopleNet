@@ -49,15 +49,9 @@ public final class JwtUtils {
         throw new RuntimeException("The Authorization header isn't present or Bearer is missing");
     }
 
-    public static JwtResponse getJwtResponse(User user, String accessToken, String refreshToken) {
+    public static JwtResponse getJwtResponse(Long id, String accessToken, String refreshToken) {
         return new JwtResponse()
-                .setId(user.getId())
-                .setUsername(user.getUsername())
-                .setAvatar(user.getAvatar())
-                .setEmail(user.getEmail())
-                .setGender(user.getGender())
-                .setLastVisit(System.currentTimeMillis())
-                .setRoles(user.getRoles())
+                .setId(id)
                 .setAccessToken(accessToken)
                 .setRefreshToken(refreshToken)
                 .setAccessTokenExpiration(verifyTokenAndReturnClaims(accessToken).getExpiration().getTime())

@@ -1,58 +1,64 @@
 <div class="container">
-  <div class="main-body">
-    <div class="row gutters-sm">
-      <div class="col-md-4 mb-3">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex flex-column align-items-center text-center">
-              <img src="{{ userInfo.avatar }}" alt="Admin" class="rounded-circle" width="150">
-              <div class="mt-3">
-                <h4>{{ userInfo.username }}</h4>
-                <p class="text-secondary mb-1">Last visit: {{ userInfo.lastVisit | date:'medium' }}</p>
-                <button class="btn btn-dark mx-1">Follow</button>
-                <button class="btn btn-outline-dark mx-1">Message</button>
-              </div>
+    <div class="main-body">
+        <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex flex-column align-items-center text-center">
+                            <img src="{{ userInfo.avatar }}" alt="Admin" class="rounded-circle" width="150">
+                            <div class="mt-3">
+                                <h4>{{ userInfo.username }}</h4>
+                                <p class="text-secondary mb-1">Last visit: {{ userInfo.lastVisit | date:'medium' }}</p>
+                                <div *ngIf="!isMyProfile()">
+                                    <button class="btn btn-dark mx-1" (click)="changeSubscription()">{{ isISubscribed() ? 'Unsubscribe' : 'Subscribe' }}</button>
+                                    <button class="btn btn-outline-dark mx-1">Message</button>
+                                </div>
+                                <p class="text-secondary mb-1">Subscriptions: {{ userInfo.subscriptions.length }}</p>
+                                <p class="text-secondary mb-1">Subscribers: {{ userInfo.subscribers.length }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+            <div class="col-md-8">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Id</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">{{ userInfo.id }}</div>
+                        </div>
+                        <hr/>
+                        <div *ngIf="userInfo.email">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">{{ userInfo.email }}</div>
+                            </div>
+                            <hr>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Gender</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">{{ userInfo.gender }}</div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Roles</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                <ul>
+                                    <li *ngFor="let role of userInfo.roles">{{ role }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="col-md-8">
-        <div class="card mb-3">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Id</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">{{ userInfo.id }}</div>
-            </div>
-            <hr />
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Email</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">{{ userInfo.email }}</div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Gender</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">{{ userInfo.gender }}</div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Roles</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">
-                <ul>
-                  <li *ngFor="let role of userInfo.roles">{{ role }}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </div>

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,10 +49,10 @@ public class MessageController {
 
     @PostMapping
     @JsonView(Views.FullMessage.class)
-    public Message create(@RequestBody Message message) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = (User) this.userService.loadUserByUsername(username);
-
+    public Message create(
+            @AuthenticationPrincipal User user,
+            @RequestBody Message message
+    ) {
         return this.messageService.create(message, user);
     }
 
