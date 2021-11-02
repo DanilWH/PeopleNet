@@ -3,6 +3,7 @@ import {User} from "../_domains/user";
 import {TokenStorageService} from "../_services/token-storage.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ProfileService} from "../_services/profile.service";
+import {UserSubscription} from '../_domains/userSubscription';
 
 @Component({
     selector: 'app-profile',
@@ -40,7 +41,7 @@ export class ProfileComponent implements OnInit {
     }
 
     public isISubscribed() {
-        return this.userInfo.subscribers && this.userInfo.subscribers.find((subscriberId: number) => subscriberId === this.tokenStorageService.getUser().id);
+        return this.userInfo.subscribers && this.userInfo.subscribers.find((userSubscription: UserSubscription) => userSubscription.subscriberId === this.tokenStorageService.getUser().id);
     }
 
     public async changeSubscription() {

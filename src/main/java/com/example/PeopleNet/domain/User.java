@@ -1,10 +1,7 @@
 package com.example.PeopleNet.domain;
 
 import com.fasterxml.jackson.annotation.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -20,6 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = { "id" })
+@ToString(of = { "id", "username" })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -51,33 +49,20 @@ public class User implements UserDetails {
     @JsonView(Views.FullProfile.class)
     private Set<RoleType> roles;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_subscription",
-            joinColumns = @JoinColumn(name = "subscriber_id"),
-            inverseJoinColumns = @JoinColumn(name = "channel_id")
-    )
-    @JsonIdentityReference(alwaysAsId = true)
-    @JsonIdentityInfo(
-            property = "id",
-            generator = ObjectIdGenerators.PropertyGenerator.class
+    @OneToMany(
+            mappedBy = "subscriber",
+            orphanRemoval = true
     )
     @JsonView(Views.FullProfile.class)
-    private Set<User> subscriptions = new HashSet<>();
+    private Set<UserSubscription> subscriptions = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_subscription",
-            joinColumns = @JoinColumn(name = "channel_id"),
-            inverseJoinColumns = @JoinColumn(name = "subscriber_id")
-    )
-    @JsonIdentityReference(alwaysAsId = true)
-    @JsonIdentityInfo(
-            property = "id",
-            generator = ObjectIdGenerators.PropertyGenerator.class
+    @OneToMany(
+            mappedBy = "channel",
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
     )
     @JsonView(Views.FullProfile.class)
-    private Set<User> subscribers = new HashSet<>();
+    private Set<UserSubscription> subscribers = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

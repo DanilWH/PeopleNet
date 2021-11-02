@@ -1,3 +1,5 @@
+import { UserSubscription } from "./userSubscription";
+
 export class User {
   id: number;
   username: string;
@@ -7,6 +9,6 @@ export class User {
   gender: string;
   lastVisit: number;
   roles: string[];
-  subscriptions: number[];
-  subscribers: number[];
+  subscriptions: UserSubscription[];
+  subscribers: UserSubscription[];
 }

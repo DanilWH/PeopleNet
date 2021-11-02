@@ -52,7 +52,9 @@
                     </a>
                     <div class="comment-body">
                         <div class="comment-heading">
-                            <h4 class="user">{{ comment.author.username }}</h4>
+                            <h4 class="user">
+                                <a class="link-dark" routerLink="../profile/{{ comment.author.id }}"><b>{{ comment.author.username }}</b></a>
+                            </h4>
                             <h5 class="time">5 minutes ago</h5>
                         </div>
                         <p>{{ comment.text }}</p>

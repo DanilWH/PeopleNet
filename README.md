@@ -820,6 +820,38 @@ In case you are using `FetchType.EAGER` and run the above test case, you will ge
                 );
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     ...
-}
+   }
    ```
+
+## 15'th commit
+
+   __Subscriptions with confirmations.__
    
+   Creating a composite key in the database:  
+   __Q:__ *What is a Composite Key*  
+   __A:__ Sometimes you can guarantee uniqueness of a record through a combination of column values.
+          This is what a composite key is. It’s a key formed by joining multiple column values that guarantee uniqueness.
+   
+   *Example of a composite key:*
+   ```roomsql
+   CREATE TABLE course_grades (
+       quarter_id INTEGER,
+       course_id TEXT,
+       student_id INTEGER,
+       grade INTEGER,
+       PRIMARY KEY(quarter_id, course_id, student_id)
+   );
+   ```
+
+   We represent a composite primary key in Spring Data by using the `@Embeddable` annotation on a class.
+   This key is then embedded in the table's corresponding entity class as the composite primary key by using the
+   `@EmbeddedId` annotation on a field of the `@Embeddable` type. (More on: <https://www.baeldung.com/spring-jpa-embedded-method-parameters>)
+
+   It's done with the following annotations:
+   - `@Embeddable` - using this annotation on a class tells JPA that the class is the composite key.
+   - `@EmebeddedId` - using this annotation on a field of the class tells JPA that this field is the composite key for
+     the class (`@Entity`).
+   - `@MapsId` - searches the entity in the database by the composite key and populates the annotated field with the found value.
+     (Designates a ManyToOne or OneToOne relationship attribute that provides the mapping for an EmbeddedId primary key,
+      an attribute within an EmbeddedId primary key, or a simple primary key of the parent entity. The value element 
+      specifies the attribute within a composite key to which the relationship attribute corresponds.)

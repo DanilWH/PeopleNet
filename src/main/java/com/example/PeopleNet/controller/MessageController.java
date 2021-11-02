@@ -14,8 +14,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/message")
 public class MessageController {
@@ -28,18 +26,13 @@ public class MessageController {
         this.userService = userService;
     }
 
-    @GetMapping()
-    @JsonView(Views.FullMessage.class)
-    public List<Message> list() {
-        return this.messageService.findAll();
-    }
-
     @GetMapping("page")
     @JsonView(Views.FullMessage.class)
     public MessagePageDto page(
-            @PageableDefault(size = 3, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 3, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal User currentUser
     ) {
-        return this.messageService.findAll(pageable);
+        return this.messageService.findForCurrentUser(pageable, currentUser);
     }
 
     @GetMapping("{id}")
