@@ -864,3 +864,12 @@ In case you are using `FetchType.EAGER` and run the above test case, you will ge
    [@JsonIgnoreProperties should support nested properties #2940](https://github.com/FasterXML/jackson-databind/issues/2940)  
    As stated in the answer to that issue:
    > No plans to ever implement this (due to delegating design, will not be possible with current Jackson architecture), closing.
+
+## 17'th commit
+
+   __Bugs fixing.__
+   
+   __Q:__ *What is __Sentry__*
+   __A:__ *__Sentry__* is a convenient logging system with your personal dashboard.
+   
+# Done

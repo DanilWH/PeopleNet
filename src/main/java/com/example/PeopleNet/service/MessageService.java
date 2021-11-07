@@ -10,7 +10,6 @@ import com.example.PeopleNet.dto.ObjectType;
 import com.example.PeopleNet.repo.MessageRepo;
 import com.example.PeopleNet.repo.UserSubscriptionRepo;
 import com.example.PeopleNet.util.WsSender;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,7 @@ public class MessageService {
     }
 
     public Message update(Message messageFromDb, Message message) {
-        BeanUtils.copyProperties(message, messageFromDb, "id");
+        messageFromDb.setText(message.getText());
         Message updatedMessage = this.messageRepo.save(messageFromDb);
 
         this.wsSender.accept(EventType.UPDATE, updatedMessage);
