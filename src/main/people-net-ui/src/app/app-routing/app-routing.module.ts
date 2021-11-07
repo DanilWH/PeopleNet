@@ -1,11 +1,11 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
 import {RouterModule, Routes} from "@angular/router";
 import {LoginComponent} from "../login/login.component";
 import {HomeComponent} from "../home/home.component";
 import {RegisterComponent} from "../register/register.component";
 import {ProfileComponent} from "../profile/profile.component";
 import {AuthGuard} from "../_helpers/auth.guard";
+import {SubscriptionsComponent} from '../subscriptions/subscriptions.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -15,6 +15,7 @@ const routes: Routes = [
     // profile route protected by auth guard.
     {path: 'profile/:id', component: ProfileComponent, canActivate: [AuthGuard]},
     {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard]},
+    {path: 'subscribers/:id', component: SubscriptionsComponent, canActivate: [AuthGuard]},
     {path: '**', redirectTo: 'home'},
 ]
 

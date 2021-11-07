@@ -1,0 +1,19 @@
+<div class="container px-4 col-sm-5 mb-3" *ngFor="let userSubscription of userSubscriptions">
+    <div class="row gx-5 panel panel-white post panel-shadow">
+        <div class="col-sm-6 col-md-8 post-heading">
+            <div class="pull-left image">
+                <img src="{{ userSubscription.subscriber.avatar }}" class="rounded-circle avatar" alt="user profile image" width="50" height="50">
+            </div>
+            <div class="pull-left meta">
+                <div class="title h5">
+                    <a routerLink="/profile/{{ userSubscription.subscriber.id }}"><b>{{ userSubscription.subscriber.username }}</b></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <button class="btn btn-dark mt-4" *ngIf="isCurrentUser" (click)="changeSubscriptionStatus(userSubscription.subscriber.id)">
+                {{ userSubscription.active ? 'Dismiss' : 'Approve' }}
+            </button>
+        </div>
+    </div>
+</div>

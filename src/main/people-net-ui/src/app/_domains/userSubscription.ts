@@ -1,5 +1,7 @@
+import {User} from "./user";
+
 export interface UserSubscription {
-    subscriberId: number;
-    channelId: number;
+    subscriber: User;
+    channel: User;
     active: boolean;
 }

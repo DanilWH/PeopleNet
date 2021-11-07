@@ -14,7 +14,7 @@
                                     <button class="btn btn-outline-dark mx-1">Message</button>
                                 </div>
                                 <p class="text-secondary mb-1">Subscriptions: {{ userInfo.subscriptions.length }}</p>
-                                <p class="text-secondary mb-1">Subscribers: {{ userInfo.subscribers.length }}</p>
+                                <a routerLink="/subscribers/{{ userInfo.id }}" class="text-secondary mb-1">Subscribers: {{ userInfo.subscribers.length }}</a>
                             </div>
                         </div>
                     </div>

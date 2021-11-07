@@ -41,7 +41,10 @@ export class ProfileComponent implements OnInit {
     }
 
     public isISubscribed() {
-        return this.userInfo.subscribers && this.userInfo.subscribers.find((userSubscription: UserSubscription) => userSubscription.subscriberId === this.tokenStorageService.getUser().id);
+        return this.userInfo.subscribers && this.userInfo.subscribers.find((userSubscription: UserSubscription) => {
+            let subscriberId = (typeof userSubscription.subscriber === "number")? userSubscription.subscriber : userSubscription.subscriber.id;
+            return subscriberId === this.tokenStorageService.getUser().id
+        });
     }
 
     public async changeSubscription() {

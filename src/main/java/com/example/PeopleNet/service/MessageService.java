@@ -66,6 +66,7 @@ public class MessageService {
         // find the subscriptions of the current user.
         List<User> channels = this.userSubscriptionRepo.findBySubscriber(currentUser)
                 .stream()
+                .filter(UserSubscription::isActive)
                 .map(UserSubscription::getChannel)
                 .collect(Collectors.toList());
 

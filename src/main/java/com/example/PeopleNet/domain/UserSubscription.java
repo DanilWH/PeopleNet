@@ -25,23 +25,21 @@ public class UserSubscription {
     @MapsId("subscriberId")
     @ManyToOne
     @JsonView(Views.IdText.class)
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityReference
     @JsonIdentityInfo(
             property = "id",
             generator = ObjectIdGenerators.PropertyGenerator.class
     )
-    @JsonProperty(value = "subscriberId")
     private User subscriber;
 
     @MapsId("channelId")
     @ManyToOne
     @JsonView(Views.IdText.class)
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityReference
     @JsonIdentityInfo(
             property = "id",
             generator = ObjectIdGenerators.PropertyGenerator.class
     )
-    @JsonProperty(value = "channelId")
     private User channel;
 
     @JsonView(Views.IdText.class)

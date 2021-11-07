@@ -12,6 +12,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { authInterceptorProvider } from "./_helpers/auth.interceptor";
 import { NgRedux, NgReduxModule } from "@angular-redux/store";
 import { IAppState, INITIAL_STATE, rootReducer } from "./_store/store";
+import { SubscriptionsComponent } from './subscriptions/subscriptions.component';
 
 @NgModule({
     declarations: [
@@ -19,7 +20,8 @@ import { IAppState, INITIAL_STATE, rootReducer } from "./_store/store";
         LoginComponent,
         RegisterComponent,
         HomeComponent,
-        ProfileComponent
+        ProfileComponent,
+        SubscriptionsComponent
     ],
     imports: [
         BrowserModule,

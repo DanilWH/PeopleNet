@@ -855,3 +855,12 @@ In case you are using `FetchType.EAGER` and run the above test case, you will ge
      (Designates a ManyToOne or OneToOne relationship attribute that provides the mapping for an EmbeddedId primary key,
       an attribute within an EmbeddedId primary key, or a simple primary key of the parent entity. The value element 
       specifies the attribute within a composite key to which the relationship attribute corresponds.)
+
+## 16'th commit
+
+   __Subscriptions with confirmations (part 2, front-end job).__
+   
+   Unfortunately, there's no such thing as
+   [@JsonIgnoreProperties should support nested properties #2940](https://github.com/FasterXML/jackson-databind/issues/2940)  
+   As stated in the answer to that issue:
+   > No plans to ever implement this (due to delegating design, will not be possible with current Jackson architecture), closing.
