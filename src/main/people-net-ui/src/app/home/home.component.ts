@@ -27,7 +27,8 @@ export class HomeComponent implements OnInit {
     constructor(
         private messageService: MessageService,
         private webSocketService: WebSocketService,
-        private stateManipulationsService: StateManipulationsService
+        private stateManipulationsService: StateManipulationsService,
+        private tokenStorageService: TokenStorageService
     ) { }
 
     ngOnInit(): void {
@@ -103,5 +104,9 @@ export class HomeComponent implements OnInit {
 
         this.stateManipulationsService.addCommentAction(comment);
         commentForm.reset();
+    }
+
+    public isMyMessage(message: Message): boolean {
+        return message.author.id === this.tokenStorageService.getUser().id;
     }
 }

@@ -1,8 +1,4 @@
-import {HttpClientModule, HttpErrorResponse} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
-import {NgForm} from '@angular/forms';
-import {Message} from './_domains/message';
-import {MessageService} from './_services/message.service';
 import {TokenStorageService} from "./_services/token-storage.service";
 import {User} from "./_domains/user";
 import {WebSocketService} from "./_services/web-socket.service";

@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,11 +52,18 @@ public class MessageController {
     }
 
     @PutMapping("{id}")
-    public Message update(
+    public ResponseEntity<Message> update(
+            @AuthenticationPrincipal User currentUser,
             @PathVariable("id") Message messageFromDb,
             @RequestBody Message message
     ) {
-        return this.messageService.update(messageFromDb, message);
+        // update the message only if the editing message author is the current user.
+        if (currentUser.getId().equals(messageFromDb.getAuthor().getId())) {
+            Message updatedMessage = this.messageService.update(messageFromDb, message);
+            return new ResponseEntity<>(updatedMessage, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     @DeleteMapping("{id}")
